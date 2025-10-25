@@ -1,0 +1,977 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <!-- Permission Check Container -->
+  <div id="permissionLoading" style="text-align: center; padding: 50px;">
+    <div class="spinner"></div>
+    <p>Checking permissions...</p>
+  </div>
+
+  <div id="roleManagementContent" style="display: none;">
+    <h1 class="page-title">👥 Role Management</h1>
+    <p class="page-subtitle">Manage user roles and permissions for your admin panel</p>
+
+    <!-- Permission Summary -->
+    <div id="permissionSummary" class="permission-summary">
+      <h3>🔐 Your Current Access</h3>
+      <div id="accessDisplay" class="access-display">
+        <span class="access-badge">Loading permissions...</span>
+      </div>
+    </div>
+
+    <!-- Create New Role Section -->
+    <div class="role-section" id="createRoleSection" style="display: none;">
+      <div class="section-header">
+        <h2 class="section-title">🆕 Create New Role</h2>
+        <button class="btn btn-primary" onclick="toggleCreateForm()">
+          <i class="fas fa-plus"></i> Add New Role
+        </button>
+      </div>
+
+      <div id="createRoleForm" class="create-form" style="display: none;">
+        <form onsubmit="createRole(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="roleName">Role Name</label>
+              <input type="text" id="roleName" name="roleName" required 
+                     placeholder="Enter role name (e.g., Content Manager)">
+            </div>
+            <div class="form-group">
+              <label for="roleLevel">Access Level</label>
+              <select id="roleLevel" name="roleLevel" required>
+                <option value="">Select Access Level</option>
+                <option value="3">Level 3 - Admin (Full Access)</option>
+                <option value="4">Level 4 - Super Admin (System Control)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Permissions</label>
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <input type="checkbox" id="perm-products" name="permissions" value="manage_products">
+                <label for="perm-products">📦 Manage Products</label>
+              </div>
+              <div class="permission-item">
+                <input type="checkbox" id="perm-orders" name="permissions" value="manage_orders">
+                <label for="perm-orders">📋 Manage Orders</label>
+              </div>
+              <div class="permission-item">
+                <input type="checkbox" id="perm-customers" name="permissions" value="manage_customers">
+              <label for="perm-customers">👥 Manage Customers</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-categories" name="permissions" value="manage_categories">
+              <label for="perm-categories">📁 Manage Categories</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-coupons" name="permissions" value="manage_coupons">
+              <label for="perm-coupons">🎫 Manage Coupons</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-staff" name="permissions" value="manage_staff">
+              <label for="perm-staff">👨‍💼 Manage Staff</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-settings" name="permissions" value="manage_settings">
+              <label for="perm-settings">⚙️ System Settings</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-reports" name="permissions" value="view_reports">
+              <label for="perm-reports">📊 View Reports</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-themes" name="permissions" value="manage_themes">
+              <label for="perm-themes">🎨 Manage Themes</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" id="perm-blog" name="permissions" value="manage_blog">
+              <label for="perm-blog">📝 Manage Blog</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" onclick="toggleCreateForm()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Roles -->
+  <div class="role-section">
+    <h2 class="section-title">📋 Current Roles</h2>
+    <div id="rolesContainer" class="roles-grid">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading roles...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default System Roles Info -->
+  <div class="role-section">
+    <h2 class="section-title">ℹ️ System Role Definitions</h2>
+    <div class="system-roles-info">
+      <div class="role-info-card super-admin">
+        <div class="role-header">
+          <span class="role-icon">👑</span>
+          <h3>Super Admin</h3>
+          <span class="role-badge">Level 4</span>
+        </div>
+        <div class="role-description">
+          <p>Complete system control with all permissions. Can manage other admins, system settings, and has access to all features.</p>
+          <div class="permissions-list">
+            <span class="permission-tag">🔧 System Control</span>
+            <span class="permission-tag">👥 User Management</span>
+            <span class="permission-tag">⚙️ Settings</span>
+            <span class="permission-tag">🎨 Themes</span>
+            <span class="permission-tag">📊 Analytics</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-info-card admin">
+        <div class="role-header">
+          <span class="role-icon">🔧</span>
+          <h3>Admin</h3>
+          <span class="role-badge">Level 3</span>
+        </div>
+        <div class="role-description">
+          <p>Full access to manage products, orders, customers, and content. Cannot modify system settings or other admins.</p>
+          <div class="permissions-list">
+            <span class="permission-tag">📦 Products</span>
+            <span class="permission-tag">📋 Orders</span>
+            <span class="permission-tag">👥 Customers</span>
+            <span class="permission-tag">🎫 Coupons</span>
+            <span class="permission-tag">📝 Content</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+            <!-- <span class="permission-tag">📈 Analytics</span> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.role-section {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-content h3 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.create-form {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 20px;
+  border: 2px dashed #dee2e6;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.permission-item:hover {
+  border-color: #3498db;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.permission-item input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.permission-item label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 25px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.system-roles-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.role-info-card {
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid;
+  background: white;
+}
+
+.role-info-card.super-admin {
+  border-color: #e74c3c;
+  background: linear-gradient(135deg, #fff5f5, #ffeaea);
+}
+
+.role-info-card.admin {
+  border-color: #3498db;
+  background: linear-gradient(135deg, #f0f8ff, #e6f3ff);
+}
+
+.role-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.role-icon {
+  font-size: 24px;
+}
+
+.role-header h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.role-badge {
+  background: rgba(0,0,0,0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.role-description p {
+  color: #5d6d7e;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.permissions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.permission-tag {
+  background: rgba(0,0,0,0.1);
+  color: #2c3e50;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #7f8c8d;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .system-roles-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+}
+</style>
+
+<script>
+// Default system roles
+const systemRoles = [
+  {
+    name: 'Super Admin',
+    level: 4,
+    permissions: ['manage_products', 'manage_orders', 'manage_customers', 'manage_categories', 'manage_coupons', 'manage_staff', 'manage_settings', 'view_reports', 'manage_themes', 'manage_blog'],
+    description: 'Complete system control',
+    isSystem: true
+  },
+  {
+    name: 'Admin',
+    level: 3,
+    permissions: ['manage_products', 'manage_orders', 'manage_customers', 'manage_categories', 'manage_coupons', 'view_reports', 'manage_blog'],
+    description: 'Full business operations access',
+    isSystem: true
+  }
+];
+
+let currentRoles = [];
+
+// Toggle create form
+function toggleCreateForm() {
+  const form = document.getElementById('createRoleForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// Load roles on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadRoles();
+  updateRoleStats();
+});
+
+// Load and display roles
+async function loadRoles() {
+  try {
+    const response = await fetch('/api/roles');
+    const data = await response.json();
+    
+    if (data.success) {
+      currentRoles = [...systemRoles, ...data.roles];
+    } else {
+      currentRoles = systemRoles;
+    }
+    
+    displayRoles();
+    updateRoleStats();
+  } catch (error) {
+    console.error('Error loading roles:', error);
+    currentRoles = systemRoles;
+    displayRoles();
+    updateRoleStats();
+  }
+}
+
+// Display roles in grid
+function displayRoles() {
+  const container = document.getElementById('rolesContainer');
+  
+  if (currentRoles.length === 0) {
+    container.innerHTML = '<div class="loading-state"><p>No roles found</p></div>';
+    return;
+  }
+  
+  container.innerHTML = currentRoles.map(role => `
+    <div class="role-card ${role.isSystem ? 'system-role' : 'custom-role'}">
+      <div class="role-card-header">
+        <h3>${role.name}</h3>
+        <span class="role-level">Level ${role.level}</span>
+        ${!role.isSystem ? '<button class="delete-btn" onclick="deleteRole(\'' + role._id + '\')">🗑️</button>' : ''}
+      </div>
+      <p class="role-desc">${role.description}</p>
+      <div class="permissions-count">
+        <span class="permission-count">${role.permissions.length} permissions</span>
+      </div>
+      <div class="role-actions">
+        <button class="view-btn" onclick="viewRoleDetails('${role._id || role.name}')">View Details</button>
+        ${!role.isSystem ? '<button class="edit-btn" onclick="editRole(\'' + role._id + '\')">Edit</button>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// Update role statistics
+function updateRoleStats() {
+  const superAdminCount = currentRoles.filter(r => r.name === 'Super Admin').length;
+  const adminCount = currentRoles.filter(r => r.name === 'Admin').length;
+  const totalUsers = currentRoles.length;
+  
+  document.getElementById('super-admin-count').textContent = superAdminCount;
+  document.getElementById('admin-count').textContent = adminCount;
+  document.getElementById('total-users-count').textContent = totalUsers;
+}
+
+// Create new role
+async function createRole(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const permissions = Array.from(formData.getAll('permissions'));
+  
+  const roleData = {
+    name: formData.get('roleName'),
+    level: parseInt(formData.get('roleLevel')),
+    permissions: permissions,
+    description: `Custom role - ${formData.get('roleName')}`
+  };
+  
+  try {
+    const response = await fetch('/api/roles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(roleData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('Role created successfully!', 'success');
+      toggleCreateForm();
+      event.target.reset();
+      loadRoles();
+    } else {
+      showNotification('Error creating role: ' + result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error creating role:', error);
+    showNotification('Error creating role. Please try again.', 'error');
+  }
+}
+
+// Show notification
+function showNotification(message, type) {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+    ${type === 'success' ? 'background: #2ecc71;' : 'background: #e74c3c;'}
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Additional role management functions
+function viewRoleDetails(roleId) {
+  const role = currentRoles.find(r => r._id === roleId || r.name === roleId);
+  if (role) {
+    alert(`Role: ${role.name}\nLevel: ${role.level}\nPermissions: ${role.permissions.join(', ')}\nDescription: ${role.description}`);
+  }
+}
+
+function editRole(roleId) {
+  showNotification('Edit functionality coming soon!', 'info');
+}
+
+function deleteRole(roleId) {
+  if (confirm('Are you sure you want to delete this role?')) {
+    showNotification('Delete functionality coming soon!', 'info');
+  }
+}
+
+// Add more styles for role cards
+const additionalStyles = `
+<style>
+.role-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.role-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.system-role {
+  border-left: 4px solid #3498db;
+}
+
+.custom-role {
+  border-left: 4px solid #2ecc71;
+}
+
+.role-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.role-card-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.role-level {
+  background: #3498db;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #ffebee;
+}
+
+.role-desc {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.permissions-count {
+  margin-bottom: 15px;
+}
+
+.permission-count {
+  background: #ecf0f1;
+  color: #2c3e50;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.view-btn, .edit-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-btn {
+  background: #3498db;
+  color: white;
+}
+
+.view-btn:hover {
+  background: #2980b9;
+}
+
+.edit-btn {
+  background: #f39c12;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #e67e22;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+// Dynamic Permission Check for Roles Page
+async function checkRolePagePermissions() {
+  try {
+    console.log('Checking role page permissions...');
+    
+    const response = await fetch('/api/user/permissions');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Role page permissions loaded:', data);
+    
+    if (data.success && data.permissions) {
+      applyRolePagePermissions(data.permissions, data.userRole);
+    } else {
+      console.error('Failed to load permissions:', data.message);
+      showAccessDenied();
+    }
+  } catch (error) {
+    console.error('Error loading role page permissions:', error);
+    showAccessDenied();
+  }
+}
+
+function applyRolePagePermissions(permissions, userRole) {
+  console.log('Applying role page permissions for role:', userRole);
+  
+  // Hide loading spinner
+  document.getElementById('permissionLoading').style.display = 'none';
+  
+  // Super Admin gets full access
+  if (userRole === 'superadmin') {
+    showFullRoleAccess();
+    return;
+  }
+  
+  // Check if user has roles permission
+  const rolesPermission = permissions.roles;
+  if (rolesPermission && (rolesPermission.view || rolesPermission.create || rolesPermission.edit)) {
+    showLimitedRoleAccess(rolesPermission);
+  } else {
+    showAccessDenied();
+  }
+}
+
+function showFullRoleAccess() {
+  console.log('Showing full role management access');
+  
+  // Show content
+  document.getElementById('roleManagementContent').style.display = 'block';
+  
+  // Show create role section
+  document.getElementById('createRoleSection').style.display = 'block';
+  
+  // Update permission summary
+  document.getElementById('accessDisplay').innerHTML = `
+    <span class="access-badge superadmin">👑 Super Admin - Full Role Management Access</span>
+  `;
+}
+
+function showLimitedRoleAccess(rolesPermission) {
+  console.log('Showing limited role management access', rolesPermission);
+  
+  // Show content
+  document.getElementById('roleManagementContent').style.display = 'block';
+  
+  // Show/hide create section based on create permission
+  if (rolesPermission.create) {
+    document.getElementById('createRoleSection').style.display = 'block';
+  }
+  
+  // Update permission summary
+  const permissions = [];
+  if (rolesPermission.view) permissions.push('View');
+  if (rolesPermission.create) permissions.push('Create');
+  if (rolesPermission.edit) permissions.push('Edit');
+  if (rolesPermission.delete) permissions.push('Delete');
+  
+  document.getElementById('accessDisplay').innerHTML = `
+    <span class="access-badge admin">🔧 Admin - Role Management: ${permissions.join(', ')}</span>
+  `;
+}
+
+function showAccessDenied() {
+  console.log('Showing access denied for role management');
+  
+  // Hide loading spinner
+  document.getElementById('permissionLoading').style.display = 'none';
+  
+  // Show access denied message
+  document.querySelector('.content').innerHTML = `
+    <div class="access-denied">
+      <div class="access-denied-content">
+        <h1>🚫 Access Denied</h1>
+        <p>You don't have permission to access Role Management.</p>
+        <p>Please contact your Super Admin for access to this section.</p>
+        <a href="/admin" class="btn btn-primary">
+          <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+      </div>
+    </div>
+    
+    <style>
+      .access-denied {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        text-align: center;
+      }
+      
+      .access-denied-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        max-width: 500px;
+      }
+      
+      .access-denied h1 {
+        color: #e74c3c;
+        margin-bottom: 20px;
+        font-size: 2.5em;
+      }
+      
+      .access-denied p {
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+      
+      .access-denied .btn {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        display: inline-block;
+        transition: background 0.3s ease;
+      }
+      
+      .access-denied .btn:hover {
+        background: #2980b9;
+      }
+    </style>
+  `;
+}
+
+// Add permission summary styles
+const permissionStyles = `
+<style>
+.permission-summary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.permission-summary h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.4em;
+}
+
+.access-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.access-badge {
+  background: rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.access-badge.superadmin {
+  background: linear-gradient(45deg, #f39c12, #e67e22);
+}
+
+.access-badge.admin {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', permissionStyles);
+
+// Initialize permission check when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Roles page DOM loaded, checking permissions...');
+  checkRolePagePermissions();
+});
+</script>
+
+<%- include('partials/footer') %>

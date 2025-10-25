@@ -1,0 +1,194 @@
+  
+  <!-- Main Content -->
+  <main class="content">
+    <!-- ✅ Updated Header like 1st screenshot -->
+  <header class="topbar light">
+  <div class="left-actions">
+    <!-- Hamburger Menu Button -->
+    <button class="menu-toggle" aria-label="Toggle Sidebar">
+      ☰
+    </button>
+  </div>
+
+   <div class="right-actions">
+
+    <!-- Notifications - Only for Superadmin -->
+    <% if (typeof locals.userEmail !== 'undefined' && locals.userEmail === 'superadmin@gmail.com') { %>
+    <div class="avatar" style="margin-right: 15px; position: relative;">
+      <button id="notifyBtn" class="icon-btn notify">
+        🔔
+        <span class="badge" id="notifyBadge">0</span>
+      </button>
+
+      <div class="dropdown" id="notifyDropdown" style="top: 50px; right: 0; min-width: 300px; max-height: 400px; overflow-y: auto;">
+        <div style="padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd;">Notifications</div>
+        <div id="notificationsList">
+          <div style="padding: 20px; text-align: center; color: #888;">
+            Loading notifications...
+          </div>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    
+
+    <!-- User Avatar -->
+    <div class="avatar" onclick="toggleDropdown()">
+  <img src="/images/user.png" alt="User">
+  <div class="dropdown" id="userDropdown">
+  <a href="/my-account"><i class="fa-solid fa-user"></i> My Account</a>
+  <a href="/dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+  <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+</div>
+
+</div>
+  </div>
+</header>
+<script>
+  function toggleDropdown() {
+    document.getElementById("userDropdown").classList.toggle("show");
+  }
+
+  // Close dropdown if clicked outside
+  window.onclick = function(event) {
+    if (!event.target.closest(".avatar")) {
+      document.getElementById("userDropdown").classList.remove("show");
+    }
+  }
+</script>
+<script>
+  // Notification system
+  let notificationsLoaded = false;
+
+  // Load notifications function - Only if notification elements exist
+  async function loadNotifications() {
+    const notificationsList = document.getElementById('notificationsList');
+    const notifyBadge = document.getElementById('notifyBadge');
+    
+    // Exit if notification elements don't exist (admin user)
+    if (!notificationsList || !notifyBadge) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/notifications');
+      const data = await response.json();
+      
+      // Update badge count
+      notifyBadge.textContent = data.unreadCount;
+      notifyBadge.style.display = data.unreadCount > 0 ? 'block' : 'none';
+      
+      // Clear existing notifications
+      notificationsList.innerHTML = '';
+      
+      if (data.notifications.length === 0) {
+        notificationsList.innerHTML = `
+          <div style="padding: 20px; text-align: center; color: #888;">
+            <span style="font-size: 24px;">📭</span><br>
+            No notifications yet
+          </div>
+        `;
+        return;
+      }
+      
+      // Add notifications
+      data.notifications.forEach(notification => {
+        const notifElement = document.createElement('a');
+        notifElement.href = notification.link || '#';
+        notifElement.style.cssText = `
+          display: block;
+          padding: 12px 15px;
+          border-bottom: 1px solid #f0f0f0;
+          text-decoration: none;
+          color: #333;
+          transition: background-color 0.2s;
+        `;
+        
+        notifElement.innerHTML = `
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 16px;">${notification.icon}</span>
+            <div style="flex: 1;">
+              <div style="font-weight: 500; margin-bottom: 2px;">${notification.title}</div>
+              <div style="font-size: 13px; color: #666; margin-bottom: 2px;">${notification.message}</div>
+              <small style="color: #999; font-size: 11px;">${notification.time}</small>
+            </div>
+          </div>
+        `;
+        
+        notifElement.addEventListener('mouseenter', () => {
+          notifElement.style.backgroundColor = '#f8f9fa';
+        });
+        
+        notifElement.addEventListener('mouseleave', () => {
+          notifElement.style.backgroundColor = 'transparent';
+        });
+        
+        notificationsList.appendChild(notifElement);
+      });
+      
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      const notificationsList = document.getElementById('notificationsList');
+      if (notificationsList) {
+        notificationsList.innerHTML = `
+          <div style="padding: 20px; text-align: center; color: #e74c3c;">
+            <span style="font-size: 24px;">⚠️</span><br>
+            Failed to load notifications
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Notification Dropdown - Only if elements exist
+  const notifyBtn = document.getElementById('notifyBtn');
+  const notifyDropdown = document.getElementById('notifyDropdown');
+
+  if (notifyBtn && notifyDropdown) {
+    notifyBtn.addEventListener('click', (e) => {
+      notifyDropdown.classList.toggle('show');
+      e.stopPropagation();
+      
+      // Load notifications when first opened
+      if (!notificationsLoaded) {
+        loadNotifications();
+        notificationsLoaded = true;
+      }
+    });
+
+    // Close dropdowns if clicking outside
+    window.addEventListener('click', (e) => {
+      if (!notifyBtn.contains(e.target) && !notifyDropdown.contains(e.target)) {
+        notifyDropdown.classList.remove('show');
+      }
+
+      const userDropdown = document.getElementById("userDropdown");
+      const avatar = document.querySelector(".avatar:last-child");
+      if (avatar && userDropdown && !avatar.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.remove("show");
+      }
+    });
+  }
+
+  // Auto-refresh notifications every 30 seconds - Only if notifications exist
+  setInterval(() => {
+    if (notificationsLoaded && document.getElementById('notifyBtn')) {
+      loadNotifications();
+    }
+  }, 30000);
+
+  // Load initial notification count on page load - Only for superadmin
+  document.addEventListener('DOMContentLoaded', () => {
+    const notifyBadge = document.getElementById('notifyBadge');
+    if (notifyBadge) {
+      fetch('/api/notifications')
+        .then(response => response.json())
+        .then(data => {
+          notifyBadge.textContent = data.unreadCount;
+          notifyBadge.style.display = data.unreadCount > 0 ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error loading notification count:', error));
+    }
+  });
+</script>

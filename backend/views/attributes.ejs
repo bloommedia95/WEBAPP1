@@ -1,0 +1,86 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1 class="page-title">Attributes</h1>
+
+  <!-- Attribute Form -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.attributes && userPermissions.attributes.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/attributes/add" method="POST" class="attribute-form">
+      <div class="form-group">
+        <label for="name">Attribute Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter attribute name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="displayName">Display Name</label>
+        <input type="text" id="displayName" name="displayName" placeholder="Enter display name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="option">Option Type</label>
+        <select id="option" name="option" required>
+          <option value="dropdown">Dropdown</option>
+          <option value="radio">Radio</option>
+        </select>
+      </div>
+
+      <!-- Small Submit Button -->
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Add Attribute</button>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Attributes Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Display Name</th>
+          <th>Option</th>
+          <th>Published</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.attributes && (userPermissions.attributes.edit || userPermissions.attributes.delete))) { %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% attributes.forEach((attr, i) => { %>
+          <tr>
+            <!-- MongoDB का _id दिखाने के लिए -->
+            <td><%= i+1 %></td>
+            <td><%= attr.name %></td>
+            <td><%= attr.displayName %></td>
+            <td><%= attr.option %></td>
+            <td>
+              <span class="badge <%= attr.published ? 'active' : 'inactive' %>">
+                <%= attr.published ? 'Published' : 'Unpublished' %>
+              </span>
+            </td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.attributes && (userPermissions.attributes.edit || userPermissions.attributes.delete))) { %>
+            <td>
+              <!-- Delete form with MongoDB _id -->
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.attributes && userPermissions.attributes.delete)) { %>
+              <form action="/attributes/delete/<%= attr._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn-small danger">Delete</button>
+              </form>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

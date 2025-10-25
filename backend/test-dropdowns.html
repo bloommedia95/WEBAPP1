@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Dropdown Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select { width: 200px; padding: 5px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Backend Product Form Dropdowns</h1>
+    
+    <div class="debug">
+        <h3>Debug Console</h3>
+        <div id="debugOutput"></div>
+    </div>
+
+    <form>
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="">Choose Category</option>
+                <option value="clothing">Clothing</option>
+                <option value="footwear">Footwear</option>
+                <option value="bags">Bags</option>
+                <option value="cosmetic">Cosmetic</option>
+                <option value="accessories">Accessories</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender">
+                <option value="">Select Gender</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <select id="brand" name="brand">
+                <option value="">Select Brand</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="subcategory">Subcategory:</label>
+            <select id="subcategory" name="subcategory">
+                <option value="">Select Subcategory</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="size">Size:</label>
+            <select id="size" name="size">
+                <option value="">Select Size</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="color">Color:</label>
+            <select id="color" name="color">
+                <option value="">Select Color</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="material">Material:</label>
+            <select id="material" name="material">
+                <option value="">Select Material</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="priceRange">Price Range:</label>
+            <select id="priceRange" name="priceRange">
+                <option value="">Select Price Range</option>
+            </select>
+        </div>
+    </form>
+
+    <script>
+        // ⭐ FilterConfig - exactly from your backend
+        const filterConfig = {
+          clothing: {
+            "According to Gender": ["Men", "Women", "Boys", "Girls"],
+            "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+            "According to Brand": ["H&M", "Calvin Kellin", "Max", "Allen Solly", "Denim"],
+            "According to Categories": ["Tops", "Suits", "Jeans", "Dresses", "Jackets"],
+            "According to Size": ["XS", "S", "M", "L", "XL", "XXL"],
+            "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+          },
+          footwear: {
+            "According to Gender": ["Men", "Women", "Boys", "Girls"],
+            "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+            "According to Brand": ["H&M", "Calvin Kellin", "Max", "Bata", "Sketchers"],
+            "According to Categories": ["Heels", "Flip Flop", "Bellies", "Sandales", "Shoes"],
+            "According to Size": ["36", "37", "38", "39", "40"],
+            "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+          },
+          bags: {
+            "According to Gender": ["Men", "Women", "Boys", "Girls"],
+            "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+            "According to Brand": ["Lavie", "Lavie Luxe", "Gusses", "H&M", "Calvin Kellin"],
+            "According to Categories": ["Sling Bag", "Tote Bag", "Short Shoulder Bag", "Shoulder Bag", "Backpack"],
+            "According to Size": ["Small", "Medium", "Large"],
+            "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+          },
+          cosmetic: {
+            "According to Gender": ["Men", "Women", "Boys", "Girls"],
+            "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+            "According to Brand": ["Dot&Key", "Plum", "Guess", "Mars", "Lakme"],
+            "According to Categories": ["Lipstick", "Toner", "Foundation", "Serum", "Eyeshadow"],
+            "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+          },
+          accessories: {
+            "According to Gender": ["Men", "Women", "Boys", "Girls"],
+            "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+            "According to Material": ["Leather", "Fabric", "Metal"],
+            "According to Brand": ["Titan", "Giva", "French Connection", "Fossil", "H&M"],
+            "According to Categories": ["Watch", "Sunglasses", "Jewellery", "Belt", "Wallet"],
+            "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+          }
+        };
+
+        // ⭐ Debug function
+        function debug(message) {
+            console.log(message);
+            const debugDiv = document.getElementById('debugOutput');
+            debugDiv.innerHTML += '<div>' + message + '</div>';
+        }
+
+        // ⭐ Function to populate dropdown options
+        function populateDropdown(selectId, options) {
+            debug(`🔄 Populating ${selectId} with options: ${JSON.stringify(options)}`);
+            
+            const select = document.getElementById(selectId);
+            if (!select) {
+                debug(`❌ Select element with ID '${selectId}' not found!`);
+                return;
+            }
+
+            // Clear existing options except the first one
+            const firstOption = select.options[0];
+            select.innerHTML = '';
+            if (firstOption) {
+                select.appendChild(firstOption);
+            }
+
+            // Add new options
+            if (options && Array.isArray(options)) {
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.textContent = option;
+                    select.appendChild(optionElement);
+                });
+                debug(`✅ Added ${options.length} options to ${selectId}`);
+            } else {
+                debug(`⚠️ No valid options provided for ${selectId}`);
+            }
+        }
+
+        // ⭐ Field mapping for each category
+        const fieldMapping = {
+          clothing: {
+            gender: "According to Gender",
+            brand: "According to Brand", 
+            subcategory: "According to Categories",
+            size: "According to Size",
+            color: "According to Color",
+            priceRange: "According to Price"
+          },
+          footwear: {
+            gender: "According to Gender",
+            brand: "According to Brand",
+            subcategory: "According to Categories", 
+            size: "According to Size",
+            color: "According to Color",
+            priceRange: "According to Price"
+          },
+          bags: {
+            gender: "According to Gender",
+            brand: "According to Brand",
+            subcategory: "According to Categories",
+            size: "According to Size", 
+            color: "According to Color",
+            priceRange: "According to Price"
+          },
+          cosmetic: {
+            gender: "According to Gender",
+            brand: "According to Brand",
+            subcategory: "According to Categories",
+            color: "According to Color",
+            priceRange: "According to Price"
+          },
+          accessories: {
+            gender: "According to Gender",
+            brand: "According to Brand",
+            subcategory: "According to Categories",
+            material: "According to Material",
+            color: "According to Color", 
+            priceRange: "According to Price"
+          }
+        };
+
+        // ⭐ Function to update product details based on category
+        function updateProductDetails(categoryName) {
+            debug(`\n🎯 Category changed to: ${categoryName}`);
+            
+            const config = filterConfig[categoryName];
+            const mapping = fieldMapping[categoryName];
+            
+            if (!config || !mapping) {
+                debug(`❌ No config found for category: ${categoryName}`);
+                return;
+            }
+
+            debug(`📝 Found config for ${categoryName}:`, config);
+            debug(`🗺️ Field mapping:`, mapping);
+
+            // Update each field based on the mapping
+            Object.keys(mapping).forEach(fieldId => {
+                const configKey = mapping[fieldId];
+                const options = config[configKey];
+                
+                debug(`🔗 Mapping ${fieldId} -> ${configKey} -> ${JSON.stringify(options)}`);
+                
+                if (options) {
+                    populateDropdown(fieldId, options);
+                } else {
+                    debug(`⚠️ No options found for ${fieldId} in category ${categoryName}`);
+                }
+            });
+
+            debug(`✨ Finished updating dropdowns for ${categoryName}\n`);
+        }
+
+        // ⭐ Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            debug('🚀 Page loaded, initializing...');
+            
+            const categorySelect = document.getElementById('category');
+            
+            if (categorySelect) {
+                debug('✅ Category select found, adding event listener');
+                
+                categorySelect.addEventListener('change', function() {
+                    const selectedValue = this.value;
+                    debug(`📞 Category change event: ${selectedValue}`);
+                    
+                    if (selectedValue) {
+                        updateProductDetails(selectedValue);
+                    } else {
+                        debug('🔄 No category selected, clearing dropdowns');
+                        // Clear all dropdowns when no category is selected
+                        ['gender', 'brand', 'subcategory', 'size', 'color', 'material', 'priceRange'].forEach(field => {
+                            const select = document.getElementById(field);
+                            if (select) {
+                                const firstOption = select.options[0];
+                                select.innerHTML = '';
+                                if (firstOption) {
+                                    select.appendChild(firstOption);
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                // Initial load with default values
+                debug('🎯 Setting initial default values...');
+                if (categorySelect.value) {
+                    updateProductDetails(categorySelect.value);
+                }
+            } else {
+                debug('❌ Category select not found!');
+            }
+        });
+    </script>
+</body>
+</html>

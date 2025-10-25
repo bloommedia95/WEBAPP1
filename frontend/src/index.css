@@ -1,0 +1,68 @@
+/* Theme Variables */
+:root {
+  /* Default theme colors (fallback) */
+  --theme-primary: #2c4691;
+  --theme-secondary: #5a7bd5;
+  --theme-accent: #ff4444;
+  --theme-background: #ffffff;
+  --theme-surface: #f8faff;
+  --theme-text: #333333;
+  --theme-textSecondary: #666666;
+  --theme-success: #4caf50;
+  --theme-warning: #ff9800;
+  --theme-error: #f44336;
+  --theme-border: #e0e0e0;
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Theme gradients */
+  --theme-primary-gradient: linear-gradient(135deg, #2c4691, #5a7bd5);
+  --theme-secondary-gradient: linear-gradient(135deg, #ff4444, #ff6666);
+  --theme-success-gradient: linear-gradient(135deg, #4caf50, #66bb6a);
+
+  /* Common CSS variables (mapped from theme) */
+  --primary-color: var(--theme-primary);
+  --secondary-color: var(--theme-secondary);
+  --accent-color: var(--theme-accent);
+  --background-color: var(--theme-background);
+  --surface-color: var(--theme-surface);
+  --text-color: var(--theme-text);
+  --text-secondary-color: var(--theme-textSecondary);
+  --success-color: var(--theme-success);
+  --warning-color: var(--theme-warning);
+  --error-color: var(--theme-error);
+  --border-color: var(--theme-border);
+  --shadow-color: var(--theme-shadow);
+
+  /* Button colors */
+  --btn-primary-bg: var(--theme-primary);
+  --btn-secondary-bg: var(--theme-secondary);
+  --highlight-color: var(--theme-accent);
+  
+  /* Layout colors */
+  --page-bg: var(--theme-background);
+  --card-bg: var(--theme-surface);
+  --primary-text: var(--theme-text);
+  --secondary-text: var(--theme-textSecondary);
+
+  /* Gradients */
+  --primary-gradient: var(--theme-primary-gradient);
+  --secondary-gradient: var(--theme-secondary-gradient);
+  --success-gradient: var(--theme-success-gradient);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

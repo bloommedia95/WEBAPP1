@@ -1,0 +1,966 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">🎨 Theme Manager</h1>
+  <p class="page-subtitle">Manage and customize your application themes</p>
+
+  <!-- Current Active Theme Card -->
+  <div class="theme-manager-section">
+    <h2 class="section-title">🌟 Current Active Theme</h2>
+    <div id="current-theme-display" class="current-theme-card">
+      <div class="theme-preview" id="current-theme-preview">
+        <div class="theme-colors-large">
+          <div class="color-preview primary" id="current-primary">
+            <span class="color-label">Primary</span>
+          </div>
+          <div class="color-preview secondary" id="current-secondary">
+            <span class="color-label">Secondary</span>
+          </div>
+          <div class="color-preview accent" id="current-accent">
+            <span class="color-label">Accent</span>
+          </div>
+        </div>
+        <div class="theme-details">
+          <h3 id="current-theme-name">Loading...</h3>
+          <p id="current-theme-desc">Loading theme description...</p>
+          <div class="theme-meta">
+            <span class="theme-tag active">ACTIVE</span>
+            <span class="theme-created" id="current-theme-created">Created: --</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Themes Grid -->
+  <div class="theme-manager-section">
+    <div class="section-header">
+      <h2 class="section-title">🎨 Available Themes</h2>
+      <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.themes && userPermissions.themes.create)) { %>
+      <button class="btn btn-primary" onclick="openCreateThemeModal()">
+        <i class="fas fa-plus"></i> Create New Theme
+      </button>
+      <% } %>
+    </div>
+    
+    <div id="themes-grid" class="themes-grid">
+      <div class="theme-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading themes...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Statistics -->
+  <div class="theme-manager-section">
+    <h2 class="section-title">📊 Theme Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-content">
+          <h3 id="total-themes">0</h3>
+          <p>Total Themes</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-content">
+          <h3 id="active-theme">1</h3>
+          <p>Active Theme</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎨</div>
+        <div class="stat-content">
+          <h3 id="custom-themes">0</h3>
+          <p>Custom Themes</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-content">
+          <h3 id="last-changed">--</h3>
+          <p>Last Changed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Theme Modal -->
+<% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.themes && userPermissions.themes.create)) { %>
+<div id="createThemeModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🎨 Create New Theme</h2>
+      <span class="close" onclick="closeCreateThemeModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <form id="createThemeForm">
+        <div class="form-group">
+          <label>Theme Name</label>
+          <input type="text" id="themeName" name="name" placeholder="e.g., my-custom-theme" required>
+        </div>
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="themeDisplayName" name="displayName" placeholder="e.g., My Custom Theme" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="themeDescription" name="description" placeholder="Describe your theme..." required></textarea>
+        </div>
+        
+        <h3>🎨 Color Palette</h3>
+        <div class="color-grid">
+          <div class="color-input-group">
+            <label>Primary Color</label>
+            <input type="color" id="primaryColor" name="primary" value="#2c4691">
+          </div>
+          <div class="color-input-group">
+            <label>Secondary Color</label>
+            <input type="color" id="secondaryColor" name="secondary" value="#5a7bd5">
+          </div>
+          <div class="color-input-group">
+            <label>Accent Color</label>
+            <input type="color" id="accentColor" name="accent" value="#ff4444">
+          </div>
+          <div class="color-input-group">
+            <label>Background</label>
+            <input type="color" id="backgroundColor" name="background" value="#ffffff">
+          </div>
+          <div class="color-input-group">
+            <label>Surface</label>
+            <input type="color" id="surfaceColor" name="surface" value="#f8faff">
+          </div>
+          <div class="color-input-group">
+            <label>Text Color</label>
+            <input type="color" id="textColor" name="text" value="#333333">
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeCreateThemeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Theme</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Theme Manager Styles -->
+<style>
+.page-subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.theme-manager-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.current-theme-card {
+  background: linear-gradient(135deg, #f8faff 0%, #e3f2fd 100%);
+  border: 2px solid #2c4691;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(44, 70, 145, 0.1);
+}
+
+.theme-preview {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.theme-colors-large {
+  display: flex;
+  gap: 20px;
+}
+
+.color-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.color-label {
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px 4px 0 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.theme-details h3 {
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  color: #2c4691;
+}
+
+.theme-details p {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.theme-meta {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.theme-tag {
+  background: #22c55e;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.theme-created {
+  color: #666;
+  font-size: 14px;
+}
+
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.theme-card {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--theme-primary, #2c4691);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.theme-card:hover {
+  border-color: #2c4691;
+  box-shadow: 0 8px 32px rgba(44, 70, 145, 0.15);
+  transform: translateY(-4px);
+}
+
+.theme-card:hover::before {
+  transform: scaleX(1);
+}
+
+.theme-card.active {
+  border-color: #2c4691;
+  background: #f8faff;
+  box-shadow: 0 8px 32px rgba(44, 70, 145, 0.2);
+}
+
+.theme-card.active::before {
+  transform: scaleX(1);
+}
+
+.theme-card.active::after {
+  content: '✓ ACTIVE';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #22c55e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.theme-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.theme-card-name {
+  font-weight: 700;
+  color: #333;
+  font-size: 18px;
+}
+
+.theme-card-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.theme-colors-mini {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.color-dot-mini {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.theme-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-mini {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-activate {
+  background: #2c4691;
+  color: white;
+}
+
+.btn-activate:hover {
+  background: #1e3d7a;
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  background: #f8faff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-content h3 {
+  font-size: 24px;
+  margin: 0;
+  color: #2c4691;
+  font-weight: 700;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.theme-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2c4691;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.theme-error {
+  grid-column: 1 / -1;
+  background: #fee;
+  border: 2px solid #fcc;
+  border-radius: 12px;
+  padding: 30px;
+  color: #c33;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 0;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.close {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.color-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.color-input-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.color-input-group input[type="color"] {
+  width: 100%;
+  height: 40px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #2c4691;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1e3d7a;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theme-preview {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .themes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .color-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .color-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<!-- Theme Manager JavaScript -->
+<script>
+let allThemes = [];
+let currentTheme = null;
+
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('🎨 Initializing Theme Manager...');
+  
+  try {
+    await Promise.all([
+      loadCurrentTheme(),
+      loadAllThemes()
+    ]);
+    updateStatistics();
+  } catch (error) {
+    console.error('Failed to initialize theme manager:', error);
+    showError('Failed to load theme manager. Please refresh the page.');
+  }
+});
+
+// Load current active theme
+async function loadCurrentTheme() {
+  try {
+    const response = await fetch('/api/themes/active');
+    if (!response.ok) throw new Error('Failed to fetch active theme');
+    
+    const theme = await response.json();
+    currentTheme = theme;
+    displayCurrentTheme(theme);
+    applyThemeToPage(theme);
+  } catch (error) {
+    console.error('Error loading current theme:', error);
+    document.getElementById('current-theme-name').textContent = 'Error loading theme';
+    document.getElementById('current-theme-desc').textContent = 'Please refresh the page';
+  }
+}
+
+// Load all available themes
+async function loadAllThemes() {
+  const grid = document.getElementById('themes-grid');
+  grid.innerHTML = `
+    <div class="theme-loading">
+      <div class="loading-spinner"></div>
+      <p>Loading themes...</p>
+    </div>
+  `;
+  
+  try {
+    const response = await fetch('/api/themes');
+    if (!response.ok) throw new Error('Failed to fetch themes');
+    
+    const themes = await response.json();
+    allThemes = themes;
+    displayThemes(themes);
+  } catch (error) {
+    console.error('Error loading themes:', error);
+    grid.innerHTML = '<div class="theme-error">❌ Failed to load themes. Please try again.</div>';
+  }
+}
+
+// Display current theme info
+function displayCurrentTheme(theme) {
+  document.getElementById('current-theme-name').textContent = theme.displayName;
+  document.getElementById('current-theme-desc').textContent = theme.description;
+  
+  // Update color previews
+  document.getElementById('current-primary').style.backgroundColor = theme.colors.primary;
+  document.getElementById('current-secondary').style.backgroundColor = theme.colors.secondary;
+  document.getElementById('current-accent').style.backgroundColor = theme.colors.accent;
+  
+  // Update created date
+  const createdDate = new Date(theme.createdAt).toLocaleDateString();
+  document.getElementById('current-theme-created').textContent = `Created: ${createdDate}`;
+}
+
+// Display all themes in grid  
+function displayThemes(themes) {
+  const grid = document.getElementById('themes-grid');
+  
+  if (!themes || themes.length === 0) {
+    grid.innerHTML = '<div class="theme-error">No themes available</div>';
+    return;
+  }
+  
+  // Permission check inline to avoid VS Code EJS syntax errors
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.themes && userPermissions.themes.delete)) { %>
+  const HAS_DELETE_ACCESS = true;
+  <% } else { %>
+  const HAS_DELETE_ACCESS = false;
+  <% } %>
+  
+  grid.innerHTML = themes.map(theme => `
+    <div class="theme-card ${theme.isActive ? 'active' : ''}" data-theme-id="${theme._id}">
+      <div class="theme-card-header">
+        <div class="theme-card-name">${theme.displayName}</div>
+      </div>
+      <div class="theme-card-description">${theme.description}</div>
+      <div class="theme-colors-mini">
+        <div class="color-dot-mini" style="background-color: ${theme.colors.primary}" title="Primary"></div>
+        <div class="color-dot-mini" style="background-color: ${theme.colors.secondary}" title="Secondary"></div>
+        <div class="color-dot-mini" style="background-color: ${theme.colors.accent}" title="Accent"></div>
+        <div class="color-dot-mini" style="background-color: ${theme.colors.success}" title="Success"></div>
+        <div class="color-dot-mini" style="background-color: ${theme.colors.warning}" title="Warning"></div>
+        <div class="color-dot-mini" style="background-color: ${theme.colors.error}" title="Error"></div>
+      </div>
+      <div class="theme-actions">
+        <div>
+          <span style="font-size: 12px; color: #666;">ID: ${theme.name}</span>
+        </div>
+        <div>
+          ${!theme.isActive ? `<button class="btn-mini btn-activate" onclick="switchTheme('${theme._id}')">Activate</button>` : ''}
+          ${(theme.name !== 'bloom-default' && HAS_DELETE_ACCESS) ? `<button class="btn-mini btn-delete" onclick="deleteTheme('${theme._id}')">Delete</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Switch to selected theme
+async function switchTheme(themeId) {
+  console.log('🎨 Switching to theme:', themeId);
+  
+  const themeCard = document.querySelector(`[data-theme-id="${themeId}"]`);
+  const originalContent = themeCard.innerHTML;
+  themeCard.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading-spinner" style="margin: 0 auto 10px;"></div><p>Switching...</p></div>';
+  
+  try {
+    const response = await fetch(`/api/themes/activate/${themeId}`, {
+      method: 'POST'
+    });
+    
+    if (!response.ok) throw new Error('Failed to activate theme');
+    
+    console.log('✅ Theme switched successfully');
+    
+    await Promise.all([
+      loadCurrentTheme(),
+      loadAllThemes()
+    ]);
+    
+    updateStatistics();
+    showSuccess('Theme changed successfully! 🎉');
+    
+  } catch (error) {
+    console.error('❌ Error switching theme:', error);
+    themeCard.innerHTML = originalContent;
+    showError('Failed to switch theme. Please try again.');
+  }
+}
+
+// Delete theme
+async function deleteTheme(themeId) {
+  if (!confirm('Are you sure you want to delete this theme? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/themes/${themeId}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) throw new Error('Failed to delete theme');
+    
+    await loadAllThemes();
+    updateStatistics();
+    showSuccess('Theme deleted successfully! 🗑️');
+    
+  } catch (error) {
+    console.error('❌ Error deleting theme:', error);
+    showError('Failed to delete theme. Please try again.');
+  }
+}
+
+// Update statistics
+function updateStatistics() {
+  if (!allThemes.length) return;
+  
+  const totalThemes = allThemes.length;
+  const customThemes = allThemes.filter(t => !['bloom-default', 'green-nature', 'sunset-orange', 'ocean-blue', 'royal-red', 'pink-rose', 'cyber-mint'].includes(t.name)).length;
+  const activeTheme = allThemes.find(t => t.isActive);
+  const lastChanged = activeTheme ? new Date(activeTheme.updatedAt).toLocaleDateString() : '--';
+  
+  document.getElementById('total-themes').textContent = totalThemes;
+  document.getElementById('active-theme').textContent = '1';
+  document.getElementById('custom-themes').textContent = customThemes;
+  document.getElementById('last-changed').textContent = lastChanged;
+}
+
+// Apply theme colors to current page
+function applyThemeToPage(theme) {
+  if (!theme || !theme.colors) return;
+  
+  const root = document.documentElement;
+  
+  Object.entries(theme.colors).forEach(([key, value]) => {
+    root.style.setProperty(`--theme-${key}`, value);
+  });
+  
+  if (theme.gradients) {
+    Object.entries(theme.gradients).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-${key}-gradient`, value);
+    });
+  }
+  
+  console.log('🎨 Theme colors applied to page');
+}
+
+// Modal functions
+function openCreateThemeModal() {
+  document.getElementById('createThemeModal').style.display = 'block';
+}
+
+function closeCreateThemeModal() {
+  document.getElementById('createThemeModal').style.display = 'none';
+  document.getElementById('createThemeForm').reset();
+}
+
+// Handle create theme form
+document.getElementById('createThemeForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const themeData = {
+    name: formData.get('name'),
+    displayName: formData.get('displayName'),
+    description: formData.get('description'),
+    colors: {
+      primary: formData.get('primary'),
+      secondary: formData.get('secondary'),
+      accent: formData.get('accent'),
+      background: formData.get('background'),
+      surface: formData.get('surface'),
+      text: formData.get('text'),
+      textSecondary: '#666666',
+      success: '#4caf50',
+      warning: '#ff9800',
+      error: '#f44336',
+      border: '#e0e0e0',
+      shadow: 'rgba(0, 0, 0, 0.1)'
+    },
+    gradients: {
+      primary: `linear-gradient(135deg, ${formData.get('primary')}, ${formData.get('secondary')})`,
+      secondary: `linear-gradient(135deg, ${formData.get('accent')}, ${formData.get('primary')})`,
+      success: 'linear-gradient(135deg, #4caf50, #66bb6a)'
+    }
+  };
+  
+  try {
+    const response = await fetch('/api/themes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(themeData)
+    });
+    
+    if (!response.ok) throw new Error('Failed to create theme');
+    
+    closeCreateThemeModal();
+    await loadAllThemes();
+    updateStatistics();
+    showSuccess('Theme created successfully! 🎨');
+    
+    
+  } catch (error) {
+    console.error('❌ Error creating theme:', error);
+    showError('Failed to create theme. Please try again.');
+  }
+});
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('createThemeModal');
+  if (event.target == modal) {
+    closeCreateThemeModal();
+  }
+}
+
+// Show success message
+function showSuccess(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3);
+    z-index: 9999;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Show error message
+function showError(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ef4444;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    z-index: 9999;
+    font-weight: 500;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => notification.remove(), 4000);
+}
+
+// Add animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

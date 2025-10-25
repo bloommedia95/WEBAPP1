@@ -1,0 +1,266 @@
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Brand -->
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2l4 7H8l4-7zm0 20l-4-7h8l-4 7zM2 12l7-4v8l-7-4zm20 0l-7 4V8l7 4z"/>
+      </svg>
+      <span>Dashtar</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="menu">
+      <a class="menu-item" href="/dashboard">
+        <i class="icon">▦</i>
+        <span>Dashboard</span>
+      </a>
+
+    <!-- <a href="/about" class="menu-item">
+  <i class="icon">ℹ️</i>
+  <span>About Us</span>
+</a> -->
+
+<% 
+// Check if user has permissions for catalog section
+const hasCatalogAccess = (typeof userPermissions !== 'undefined' && userPermissions) && 
+  (userPermissions.products?.view || userPermissions.categories?.view || userPermissions.attributes?.view || userPermissions.blogs?.view || userPermissions.coupons?.view) ||
+  (typeof userRole !== 'undefined' && userRole === 'superadmin');
+%>
+
+<% if (hasCatalogAccess) { %>
+<a class="menu-item" href="javascript:void(0);" id="catalogToggle">
+  <i class="icon">🗂️</i>
+  <span>Catalog</span>
+  <i class="arrow">▼</i>
+</a>
+
+<ul class="submenu" id="catalogMenu">
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.products?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/products">Products</a></li>
+  <% } %>
+  
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.categories?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/category">Categories</a></li>
+  <% } %>
+  
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.attributes?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/attributes">Attributes</a></li>
+  <% } %>
+  
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.blogs?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/blogs">Blogs</a></li>
+  <% } %>
+
+    <% if ((typeof userPermissions !== 'undefined' && userPermissions?.blogs?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="admin/offers">Bank Offers</a></li>
+  <% } %>
+
+  <!-- Coupons Parent -->
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.coupons?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+  <li>
+    <a href="javascript:void(0);" class="submenu-toggle" id="couponsToggle">
+      Coupons <i class="arrow">▼</i>
+    </a>
+    <ul class="submenu nested" id="couponsMenu">
+      <% if ((typeof userPermissions !== 'undefined' && userPermissions?.coupons?.create) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+        <li><a href="/coupon-create">Create Coupon</a></li>
+      <% } %>
+      <li><a href="/coupon-list">List Coupons</a></li>
+    </ul>
+  </li>
+  <% } %>
+</ul>
+<% } %>
+
+<% 
+// Check if user has permissions for sales section
+const hasSalesAccess = (typeof userPermissions !== 'undefined' && userPermissions) && 
+  (userPermissions.orders?.view || userPermissions.transactions?.view) ||
+  (typeof userRole !== 'undefined' && userRole === 'superadmin');
+%>
+
+<% if (hasSalesAccess) { %>
+<a class="menu-item" href="javascript:void(0);" id="salesToggle">
+  <i class="icon">💰</i>
+  <span>Sales</span>
+  <i class="arrow">▼</i>
+</a>
+
+<ul class="submenu" id="salesMenu">
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.orders?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/orders">Orders</a></li>
+  <% } %>
+  
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.transactions?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/transactions">Transactions</a></li>
+  <% } %>
+</ul>
+<% } %>
+
+
+<!-- 
+ <a class="menu-item" href="/customers">
+        <i class="icon">👥</i>
+        <span>Customers</span>
+      </a>
+
+       <a class="menu-item" href="/media">
+        <i class="icon">📷</i>
+        <span>Media</span>
+      </a> -->
+
+
+
+     <!-- <a class="menu-item " href="/orders">
+  <i class="icon">📦</i>
+  <span>Orders</span>
+</a> -->
+
+<!-- Team Members - Only show if user has team permissions -->
+<% if ((typeof userPermissions !== 'undefined' && userPermissions?.team?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+<a class="menu-item " href="/our-staff">
+  <i class="icon">👨‍💼</i>
+  <span>Team Members</span>
+</a>
+<% } %>
+
+
+<!-- 
+      <a class="menu-item" href="/products">
+        <i class="icon">🛍️</i>
+        <span>Products</span>
+      </a> -->
+     
+     <!-- <a class="menu-item" href="/category">
+  <i class="icon">🗂️</i> 
+  <span>Category</span>
+</a> -->
+
+      <!-- <a class="menu-item" href="/settings">
+        <i class="icon">⚙️</i>
+        <span>Settings</span>
+      </a> -->
+
+<!-- International - Only show if user has language/currency permissions -->
+<% 
+const hasInternationalAccess = (typeof userPermissions !== 'undefined' && userPermissions) && 
+  (userPermissions.languages?.view || userPermissions.currencies?.view) ||
+  (typeof userRole !== 'undefined' && userRole === 'superadmin');
+%>
+
+<% if (hasInternationalAccess) { %>
+<a class="menu-item" href="javascript:void(0);" id="internationalToggle">
+  <i class="icon">🌐</i>
+  <span>International</span>
+  <i class="arrow">▼</i>
+</a>
+
+<ul class="submenu" id="internationalMenu">
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.languages?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/languages">Languages</a></li>
+  <% } %>
+  
+  <% if ((typeof userPermissions !== 'undefined' && userPermissions?.currencies?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/currencies">Currencies</a></li>
+  <% } %>
+</ul>
+<% } %>
+
+
+
+<!-- Online Store Menu -->
+<!-- <a class="menu-item" href="javascript:void(0)" id="storeToggle">
+  <i class="icon">🛒</i>
+  <span>Online Store</span>
+  <i class="dropdown-arrow">▼</i>
+</a>
+
+Online Store Submenu -->
+<!-- <div class="submenu" id="storeMenu">
+  <a href="/store/view">View Store</a>
+  <a href="/store/customization">Store Customization</a>
+  <a href="/store/settings">Store Settings</a>
+</div> -->
+
+
+<!-- Pages Menu -->
+<!-- <a class="menu-item" href="javascript:void(0)" id="pagesToggle">
+  <i class="icon pages-icon">📄</i>
+  <span>Pages</span>
+  <i class="arrow">▼</i> 
+</a>
+
+<div class="submenu" id="pagesMenu">
+  <a href="/pages">List Page</a>
+  <a href="/create-page">Create Page</a>
+  
+</div> -->
+<!-- Invoice - Only show if user has invoice permissions -->
+<% if ((typeof userPermissions !== 'undefined' && userPermissions?.invoice?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+<a class="menu-item" href="/invoice">
+  <i class="icon">🧾</i>
+  <span>Invoice</span>
+</a>
+<% } %>
+
+<!-- Roles - Only show if user has role permissions or is superadmin -->
+<% if ((typeof userPermissions !== 'undefined' && userPermissions?.roles?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+<a class="menu-item" href="javascript:void(0);" id="rolesToggle">
+  <i class="icon">👥</i>
+  <span>Roles</span>
+  <i class="arrow">▼</i>
+</a>
+
+<ul class="submenu" id="rolesMenu">
+
+   <!-- Role Management - Only for Superadmin -->
+  <% if ((typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+    <li><a href="/role-management">🎭 Role Management</a></li>
+  <% } %>
+  <!-- <li><a href="/roles">🎭 Manage Roles</a></li> -->
+  <% if ((typeof userEmail !== 'undefined' && userEmail === 'superadmin@gmail.com')) { %>
+    <li><a href="/superadmin">👑 Super Admin</a></li>
+  <% } %>
+  
+ 
+  <!-- <li><a href="/admin">🔧 Admin</a></li> -->
+</ul>
+<% } %>
+
+<!-- Theme Manager - Only show if user has theme permissions -->
+<% if ((typeof userPermissions !== 'undefined' && userPermissions?.themes?.view) || (typeof userRole !== 'undefined' && userRole === 'superadmin')) { %>
+<a class="menu-item" href="/theme-manager">
+  <i class="icon">🎨</i>
+  <span>Theme Manager</span>
+</a>
+<% } %>
+
+ 
+    </nav>
+
+    <!-- Logout Button -->
+    <div class="sidebar-footer">
+      <a class="logout-btn" href="/logout">
+        <svg xmlns="http://www.w3.org/2000/svg" class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Log Out
+      </a>
+    </div>
+  </aside>
+  <script>
+  const toggle = document.getElementById('catalogToggle');
+  const menu = document.getElementById('catalogMenu');
+  const arrow = toggle.querySelector('.arrow');
+
+  toggle.addEventListener('click', () => {
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    arrow.classList.toggle('open');
+  });
+</script>
+
+  <!-- Overlay for mobile -->
+<div class="overlay"></div>

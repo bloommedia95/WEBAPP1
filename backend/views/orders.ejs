@@ -1,0 +1,152 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1 class="page-title">Orders</h1>
+
+  <!-- Dynamic Order Form - only show if user has create permission -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.orders && userPermissions.orders.create)) { %>
+  <div class="order-form-wrap mb-6 p-6 rounded shadow-lg">
+    <h2>Place New Order</h2>
+    <form id="orderForm">
+      <!-- Customer Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+      </div>
+
+      <!-- Dynamic Products -->
+      <div id="productsContainer" class="space-y-2 mb-3">
+        <div class="flex gap-2 items-center">
+          <input type="text" name="productName[]" placeholder="Product Name" required class="flex-1" />
+          <input type="number" name="quantity[]" placeholder="Quantity" required class="w-24" />
+          <button type="button" class="removeBtn">Remove</button>
+        </div>
+      </div>
+
+      <button type="button" id="addProduct">Add Product</button>
+      <button type="submit">Submit Order</button>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Orders Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Total</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.orders && (userPermissions.orders.edit || userPermissions.orders.delete))) { %>
+          <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody">
+        <% orders.forEach(order => { %>
+          <tr>
+            <td>#<%= order._id %></td>
+            <td><%= order.name %></td>
+            <td><%= order.date.toISOString().split("T")[0] %></td>
+            <td><span class="badge <%= order.status.toLowerCase() %>"><%= order.status %></span></td>
+            <td>$<%= order.total.toFixed(2) %></td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.orders && (userPermissions.orders.edit || userPermissions.orders.delete))) { %>
+            <td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.orders && userPermissions.orders.edit)) { %>
+              <button class="edit-btn">Edit</button>
+              <% } %>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.orders && userPermissions.orders.delete)) { %>
+              <button class="delete-btn" data-id="<%= order._id %>">Delete</button>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<script>
+  // Add Product Row
+  const addBtn = document.getElementById('addProduct');
+  const container = document.getElementById('productsContainer');
+
+  addBtn.addEventListener('click', () => {
+    const div = document.createElement('div');
+    div.classList.add('flex', 'gap-2', 'items-center');
+    div.innerHTML = `
+      <input type="text" name="productName[]" placeholder="Product Name" required class="flex-1" />
+      <input type="number" name="quantity[]" placeholder="Quantity" required class="w-24" />
+      <button type="button" class="removeBtn">Remove</button>
+    `;
+    container.appendChild(div);
+    div.querySelector('.removeBtn').addEventListener('click', () => div.remove());
+  });
+
+  // Remove buttons for initial row
+  document.querySelectorAll('.removeBtn').forEach(btn => {
+    btn.addEventListener('click', e => e.target.closest('div').remove());
+  });
+
+  // Submit Order -> Send to backend
+  document.getElementById('orderForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const products = [];
+    const productNames = formData.getAll("productName[]");
+    const quantities = formData.getAll("quantity[]");
+
+    productNames.forEach((name, i) => {
+      products.push({ name, quantity: parseInt(quantities[i]) });
+    });
+
+    const order = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      products
+    };
+
+    // Send to backend
+    const res = await fetch("/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order)
+    });
+
+    const savedOrder = await res.json();
+
+    // Add new row in table dynamically
+    const tbody = document.getElementById('ordersTableBody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td>#${savedOrder._id}</td>
+      <td>${savedOrder.name}</td>
+      <td>${new Date(savedOrder.date).toISOString().split('T')[0]}</td>
+      <td><span class="badge ${savedOrder.status.toLowerCase()}">${savedOrder.status}</span></td>
+      <td>$${savedOrder.total.toFixed(2)}</td>
+    `;
+    tbody.prepend(newRow);
+
+    // reset form
+    form.reset();
+    container.innerHTML = `
+      <div class="flex gap-2 items-center">
+        <input type="text" name="productName[]" placeholder="Product Name" required class="flex-1" />
+        <input type="number" name="quantity[]" placeholder="Quantity" required class="w-24" />
+        <button type="button" class="removeBtn">Remove</button>
+      </div>
+    `;
+  });
+</script>
+
+<%- include('partials/footer') %>

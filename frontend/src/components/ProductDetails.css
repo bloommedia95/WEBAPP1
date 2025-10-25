@@ -1,0 +1,393 @@
+/* ---------- Overall Page ---------- */
+.pd-page {
+  display: flex;
+  gap: 120px;
+  padding: 60px 105px;
+  font-family: "Arial", sans-serif;
+  color: #000000;
+}
+
+/* ---------- Left Section (Images) ---------- */
+.pd-images {
+  display: flex;
+  gap: 65px;
+}
+
+.pd-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pd-thumb {
+  width: 120px;
+  height: 155px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.pd-thumb:hover {
+  border: 1.5px solid #ff3e6c;
+}
+
+.pd-main img {
+  width: 400px;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* ---------- Right Info Section ---------- */
+.pd-info {
+  flex: 1;
+}
+
+.pd-brand {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.pd-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.pd-price {
+  font-size: 22px;
+  font-weight: bold;
+  color: #e63946;
+}
+.pd-mrp {
+  font-size: 14px;
+  color: #888;
+  margin-left: 5px;
+  text-decoration: line-through;
+}
+.pd-tax {
+  display: block;
+  font-size: 13px;
+  color: green;
+  margin-bottom: 8px;
+}
+.pd-rating {
+  display: inline-block;
+  /* background: #fdd835;   */
+  color: #000;         
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  
+    border: 1px solid #000000;
+}
+
+
+/* ---------- Sizes ---------- */
+.pd-sizes h4 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: 300;
+}
+.pd-size-options {
+  display: flex;
+  gap: 8px;
+}
+/* Size button */
+.pd-size-btn {
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+/* Selected size button */
+.pd-size-btn.selected {
+  background: #e3f2fd;
+  border: 2px solid #2196f3;
+  color: #1565c0;
+  font-weight: 600;
+}
+.pd-size-btn:hover {
+  border-color: #ff3e6c;
+  color: #ff3e6c;
+}
+
+/* ---------- Colors ---------- */
+.pd-color-swatch.selected {
+  box-shadow: 0 0 0 3px #b3e5fc;
+  border: 2px solid #2196f3 !important;
+  outline: none;
+}
+.pd-colors h4 {
+  font-size: 14px;
+  margin: 15px 0 8px;
+}
+.pd-color-options {
+     display: flex
+;
+    gap: 19px;
+    margin-top: 18px;
+    margin-left: 8px;
+}
+.pd-color {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  /* border: 1px solid #ddd; */
+}
+.red { background: red; }
+.black { background: black; }
+.blue { background: blue; }
+.pink { background: pink; }
+
+/* ---------- Buttons ---------- */
+.pd-buttons {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+.pd-add-btn,
+.pd-wish-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.pd-add-btn {
+  background: #D6EAF8;
+  color: #000000;
+}
+.pd-add-btn:hover {
+  background: #a9cce6;
+}
+.pd-wish-btn {
+  background: #fff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+.pd-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Delivery ---------- */
+.pd-delivery {
+  /* border-top: 1px solid #ddd; */
+  padding-top: 15px;
+  margin-top: 20px;
+}
+.pd-delivery-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pd-pincode {
+  margin: 8px 0;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 150px;
+}
+.pd-check-btn {
+  padding: 6px 12px;
+  background: #ff3e6c;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+.pd-delivery-info {
+  font-size: 15px;
+  color: #444;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* ---------- Offers ---------- */
+.pd-offers {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  margin-top: 20px;
+}
+.pd-offers h4 {
+  font-size: 14px;
+  margin: 8px 0;
+}
+.pd-offers ul {
+  font-size: 14px;
+  color: #444;
+  margin-left: 18px;
+  line-height: 1.6;
+}
+
+/* ---------- Product Details ---------- */
+.pd-details {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  margin-top: 20px;
+}
+.pd-details ul {
+  margin-left: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- Reviews ---------- */
+/* ---------- Reviews Section ---------- */
+.pd-reviews {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  margin-top: 20px;
+}
+
+.pd-reviews h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #00bfa5; /* Green heading */
+}
+
+/* Each review box */
+.pd-review-box {
+  border: 1px solid #000000;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  display: inline-block;
+  max-width: 36%;
+  vertical-align: top;
+  background: #fff;
+  margin-right: 40px;
+}
+
+.pd-review-box p {
+  margin: 0;
+  line-height: 1.5;
+  color: #000000;
+}
+
+/* Review input wrapper */
+.pd-review-box-input {
+  position: relative;
+  display: inline-block;
+  width: 45%;
+}
+
+.pd-review-input {
+  width: 75%;
+  border: 1px solid #555;
+margin-top: 20px;
+  padding: 10px 35px 10px 12px; /* Right padding for icon */
+  font-size: 14px;
+  resize: none;
+}
+
+/* Icon inside textarea */
+.pd-review-icon {
+      position: absolute;
+    right: 61px;
+    bottom: 18px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.3s;
+ 
+}
+.pd-review-icon:hover {
+  opacity: 1;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .pd-page {
+    flex-direction: column;
+    align-items: center;
+  }
+  .pd-main img {
+    width: 100%;
+    height: auto;
+  }
+  .pd-thumbnails {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+
+
+/* ---------- Similar Products Section ---------- */
+.pd-similar {
+  margin-top: 40px;
+  padding: 40px 60px;
+}
+
+.pd-similar h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 53px;
+  color: #000000;
+}
+
+/* Grid layout */
+.pd-similar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* Each card */
+.pd-similar-card {
+  text-align: left;
+}
+
+.pd-similar-card img {
+  width: 100%;
+  height: 434px;
+  object-fit: cover;
+
+  margin-bottom: 8px;
+}
+
+.pd-similar-title {
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 0px;
+  line-height: 1.4;
+  
+}
+
+.pd-similar-price {
+  font-size: 23px;
+  font-weight: 600;
+  color: #d32f2f; /* red */
+      margin-top: 8px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .pd-similar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .pd-similar-grid {
+    grid-template-columns: 1fr;
+  }
+}

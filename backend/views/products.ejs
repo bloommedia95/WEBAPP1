@@ -1,0 +1,787 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Products</h1>
+
+  <!-- Add Product Form - only show if user has create permission -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.products && userPermissions.products.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/products" method="POST" enctype="multipart/form-data">
+      <!-- Product Title -->
+      <div class="form-group">
+        <label for="title">Product Title</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="name" 
+          placeholder="Enter product title" 
+          required 
+        />
+      </div>
+
+      <!-- SKU -->
+      <div class="form-group">
+        <label for="sku">Product SKU</label>
+        <input 
+          type="text" 
+          id="sku" 
+          name="sku" 
+          placeholder="Enter product SKU" 
+          required 
+        />
+      </div>
+
+      <!-- Product Images -->
+      <div class="form-group">
+        <label for="productImages">Product Images (Multiple)</label>
+        <input 
+          type="file" 
+          id="productImages" 
+          name="imageFiles" 
+          accept="image/*" 
+          multiple 
+          required 
+        />
+        <small>Select multiple images for the product (first image will be main)</small>
+      </div>
+
+      <!-- Price -->
+      <div class="form-group">
+        <label for="price">Price (₹)</label>
+        <input 
+          type="number" 
+          id="price" 
+          name="price" 
+          step="0.01" 
+          placeholder="Enter price" 
+          required 
+        />
+      </div>
+
+      <!-- Stock -->
+      <div class="form-group">
+        <label for="stock">Stock Quantity</label>
+        <input 
+          type="number" 
+          id="stock" 
+          name="stock" 
+          placeholder="Enter stock quantity" 
+          required 
+        />
+      </div>
+
+      <!-- Category -->
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="">Select Category</option>
+          <% if (categories && categories.length > 0) { %>
+            <% categories.forEach(category => { %>
+              <option value="<%= category.name %>"><%= category.name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+
+      <!-- Subcategory -->
+      <!-- <div class="form-group">
+        <label for="subcategory">Subcategory</label>
+        <input 
+          type="text" 
+          id="subcategory" 
+          name="subcategory" 
+          placeholder="Enter subcategory" 
+        />
+      </div> -->
+
+      <!-- Product Details Section -->
+      <div class="form-group full-width" style="border: 2px solid #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; background: #f8faff;">
+        <h4 style="color: #4f46e5; margin-bottom: 15px;">📦 Product Details</h4>
+        
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <div class="custom-select-wrapper">
+            <select id="gender" name="gender">
+              <option value="">Select Gender</option>
+              <!-- Options will be populated dynamically based on category -->
+            </select>
+            <input type="text" id="gender-custom" placeholder="Or type new gender..." class="custom-input">
+            <button type="button" onclick="addCustomOption('gender')" class="add-btn">+ Add</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="brand">Brand</label>
+          <div class="custom-select-wrapper">
+            <select id="brand" name="brand">
+              <option value="">Select Brand</option>
+              <!-- Options will be populated dynamically based on category -->
+            </select>
+            <input type="text" id="brand-custom" placeholder="Or type new brand..." class="custom-input">
+            <button type="button" onclick="addCustomOption('brand')" class="add-btn">+ Add</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="subcategory">Subcategory</label>
+          <div class="custom-select-wrapper">
+            <select id="subcategory" name="subcategory">
+              <option value="">Select Subcategory</option>
+              <!-- Options will be populated dynamically based on category -->
+            </select>
+            <input type="text" id="subcategory-custom" placeholder="Or type new subcategory..." class="custom-input">
+            <button type="button" onclick="addCustomOption('subcategory')" class="add-btn">+ Add</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="size">Size (Multiple Selection)</label>
+          <div class="multi-select-wrapper">
+            <div class="checkbox-group" id="size-options">
+              <!-- Options will be populated dynamically based on category -->
+            </div>
+            <div class="custom-option-input">
+              <input type="text" id="size-custom" placeholder="Add new size (e.g. XXL, 38, etc.)" class="custom-input">
+              <button type="button" onclick="addMultipleOption('size')" class="add-btn">+ Add Size</button>
+            </div>
+            <input type="hidden" id="size-hidden" name="size" value="">
+            <div class="selected-tags" id="size-tags"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="color">Color (Multiple Selection)</label>
+          <div class="multi-select-wrapper">
+            <div class="checkbox-group" id="color-options">
+              <!-- Options will be populated dynamically based on category -->
+            </div>
+            <div class="custom-option-input">
+              <input type="text" id="color-custom" placeholder="Add new color (e.g. Maroon, Lime Green, etc.)" class="custom-input">
+              <button type="button" onclick="addMultipleOption('color')" class="add-btn">+ Add Color</button>
+            </div>
+            <input type="hidden" id="color-hidden" name="color" value="">
+            <div class="selected-tags" id="color-tags"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="material">Material</label>
+          <div class="custom-select-wrapper">
+            <select id="material" name="material">
+              <option value="">Select Material</option>
+              <!-- Options will be populated dynamically based on category -->
+            </select>
+            <input type="text" id="material-custom" placeholder="Or type new material..." class="custom-input">
+            <button type="button" onclick="addCustomOption('material')" class="add-btn">+ Add</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="priceRange">Price Range</label>
+          <select id="priceRange" name="priceRange">
+            <option value="">Select Price Range</option>
+            <!-- Options will be populated dynamically based on category -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group full-width">
+        <label for="description">Product Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          rows="6" 
+          placeholder="Enter detailed product description"
+        ></textarea>
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Draft">Draft</option>
+        </select>
+      </div>
+
+      <!-- Video (Optional) -->
+      <div class="form-group">
+        <label for="videoFile">Product Video (Optional)</label>
+        <input 
+          type="file" 
+          id="videoFile" 
+          name="videoFile" 
+          accept="video/*" 
+        />
+        <small>Upload product demo video (optional)</small>
+      </div>
+
+      <!-- Submit -->
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">
+          Add Product
+        </button>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Products Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (products && products.length > 0) { %>
+          <% products.forEach(product => { %>
+            <tr>
+              <td><%= product.name || product.title %></td>
+              <td>
+               <% if (product.images && product.images.length > 0) { %>
+  <% product.images.forEach(img => { %>
+    <img 
+      src="<%= img %>" 
+      alt="product-image" 
+      style="width:50px; height:50px; object-fit:cover; border-radius:5px; margin-right:5px;"
+      onerror="this.style.display='none';"
+    />
+  <% }) %>
+<% } else if (product.imageUrl) { %>
+  <img 
+    src="<%= product.imageUrl %>" 
+    alt="product-image" 
+    style="width:50px; height:50px; object-fit:cover; border-radius:5px;"
+    onerror="this.style.display='none';"
+  />
+<% } else { %>
+  <span style="color:#999; font-size:11px;">No Image</span>
+<% } %>
+
+              </td>
+              <td>₹<%= product.price %></td>
+              <td><%= product.category %></td>
+              <td><%= product.stock %></td>
+              <td>
+                <span class="status-badge <%= product.status.toLowerCase() %>">
+                  <%= product.status %>
+                </span>
+              </td>
+              <td><%= product.createdAt ? product.createdAt.toDateString() : 'N/A' %></td>
+              <td>
+                <!-- Edit button - only show if user has edit permission -->
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.products && userPermissions.products.edit)) { %>
+                  <a href="/products/edit/<%= product._id %>" class="btn-action btn-edit">✏️ Edit</a>
+                <% } %>
+
+                <!-- Delete button - only show if user has delete permission -->
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.products && userPermissions.products.delete)) { %>
+                  <form action="/products/delete/<%= product._id %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-action btn-delete" onclick="return confirm('Are you sure?')">❌ Delete</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align:center;">No products available</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ⭐ FilterConfig from frontend - matching exactly with frontend/src/components/filterConfig.js
+const filterConfig = {
+  clothing: {
+    "According to Gender": ["Men", "Women", "Boys", "Girls"],
+    "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+    "According to Brand": ["H&M", "Calvin Kellin", "Max", "Allen Solly", "Denim"],
+    "According to Categories": ["Tops", "Suits", "Jeans", "Dresses", "Jackets"],
+    "According to Size": ["XS", "S", "M", "L", "XL", "XXL"],
+    "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+  },
+  footwear: {
+    "According to Gender": ["Men", "Women", "Boys", "Girls"],
+    "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+    "According to Brand": ["H&M", "Calvin Kellin", "Max", "Bata", "Sketchers"],
+    "According to Categories": ["Heels", "Flip Flop", "Bellies", "Sandales", "Shoes"],
+    "According to Size": ["36", "37", "38", "39", "40"],
+    "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+  },
+  bags: {
+    "According to Gender": ["Men", "Women", "Boys", "Girls"],
+    "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+    "According to Brand": ["Lavie", "Lavie Luxe", "Gusses", "H&M", "Calvin Kellin"],
+    "According to Categories": ["Sling Bag", "Tote Bag", "Short Shoulder Bag", "Shoulder Bag", "Backpack"],
+    "According to Size": ["Small", "Medium", "Large"],
+    "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+  },
+  cosmetic: {
+    "According to Gender": ["Men", "Women", "Boys", "Girls"],
+    "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+    "According to Brand": ["Dot&Key", "Plum", "Guess", "Mars", "Lakme"],
+    "According to Categories": ["Lipstick", "Toner", "Foundation", "Serum", "Eyeshadow"],
+    "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+  },
+  acessories: {
+    "According to Gender": ["Men", "Women", "Boys", "Girls"],
+    "According to Price": ["Rs.500 - Rs.1500", "Rs.1500 - Rs.2500", "Rs.2500 - Rs.3500", "Rs.3500 - Rs.4500", "Rs.4500 - & above"],
+    "According to Material": ["Leather", "Fabric", "Metal"],
+    "According to Brand": ["Titan", "Giva", "French Connection", "Fossil", "H&M"],
+    "According to Categories": ["Watch", "Sunglasses", "Jewellery", "Belt", "Wallet"],
+    "According to Color": ["Black", "White", "Red", "Pink", "Green", "Navy Blue"],
+  }
+};
+
+// ⭐ Function to populate dropdown options
+function populateDropdown(selectId, options) {
+  const select = document.getElementById(selectId);
+  console.log(`🔧 Populating dropdown: ${selectId}`, options);
+  
+  if (!select) {
+    console.error(`❌ Dropdown element not found: ${selectId}`);
+    return;
+  }
+  
+  // Clear existing options except first (default) option
+  select.innerHTML = select.options[0].outerHTML;
+  
+  // Add new options
+  if (options && options.length > 0) {
+    options.forEach(option => {
+      const optionElement = document.createElement('option');
+      optionElement.value = option;
+      optionElement.textContent = option;
+      select.appendChild(optionElement);
+    });
+    console.log(`✅ Successfully added ${options.length} options to ${selectId}`);
+  } else {
+    console.log(`⚠️ No options provided for ${selectId}`);
+  }
+}
+
+// ⭐ Function to update product details based on category
+function updateProductDetails(categoryName) {
+  console.log('🔄 Updating product details for category:', categoryName);
+  
+  if (!categoryName) {
+    // Clear all dropdowns if no category selected
+    console.log('🧹 Clearing all dropdowns');
+    ['gender', 'brand', 'subcategory', 'size', 'color', 'material', 'priceRange'].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) {
+        select.innerHTML = select.options[0].outerHTML;
+        console.log(`✅ Cleared ${id}`);
+      }
+    });
+    return;
+  }
+
+  // Convert category name to lowercase to match filterConfig keys
+  const categoryKey = categoryName.toLowerCase();
+  const categoryConfig = filterConfig[categoryKey];
+  
+  console.log('🔍 Looking for category:', categoryKey);
+  console.log('📋 Available categories:', Object.keys(filterConfig));
+  
+  if (categoryConfig) {
+    console.log('✅ Found filter config for:', categoryKey);
+    console.log('📊 Category config:', categoryConfig);
+    
+    // Map filterConfig keys to form field IDs
+    const fieldMapping = {
+      "According to Gender": "gender",
+      "According to Brand": "brand", 
+      "According to Categories": "subcategory",
+      "According to Size": "size",
+      "According to Color": "color",
+      "According to Material": "material",
+      "According to Price": "priceRange"
+    };
+
+    console.log('🗺️ Field mapping:', fieldMapping);
+
+    // Populate each dropdown based on filterConfig
+    Object.keys(categoryConfig).forEach(filterKey => {
+      const fieldId = fieldMapping[filterKey];
+      console.log(`🔗 Processing filter: "${filterKey}" -> field: "${fieldId}"`);
+      
+      if (fieldId) {
+        const options = categoryConfig[filterKey];
+        console.log(`📝 Options for ${filterKey}:`, options);
+        
+        // Handle multiple select fields differently
+        if (fieldId === 'size' || fieldId === 'color') {
+          // For size and color, initialize checkboxes
+          const container = document.getElementById(fieldId + '-options');
+          if (container) {
+            container.innerHTML = '';
+            options.forEach(option => {
+              addCheckboxOption(fieldId, option);
+            });
+          }
+        } else {
+          // For single select fields, populate dropdown
+          populateDropdown(fieldId, options);
+        }
+      } else {
+        console.log(`⚠️ No field mapping found for filter: "${filterKey}"`);
+      }
+    });
+  } else {
+    console.log('⚠️ No filter config found for category:', categoryKey);
+    console.log('🔄 Using fallback options');
+    
+    // Fallback to basic options if no specific config found
+    populateDropdown('gender', ['Men', 'Women', 'Boys', 'Girls']);
+    populateDropdown('brand', ['H&M', 'Calvin Klein', 'Max', 'Allen Solly']);
+    populateDropdown('subcategory', ['Tops', 'Shirts', 'T-Shirts']);
+    populateDropdown('material', ['Cotton', 'Polyester', 'Silk']);
+    
+    // Initialize default size and color checkboxes
+    const sizeContainer = document.getElementById('size-options');
+    const colorContainer = document.getElementById('color-options');
+    
+    if (sizeContainer) {
+      sizeContainer.innerHTML = '';
+      ['XS', 'S', 'M', 'L', 'XL', 'XXL'].forEach(size => {
+        addCheckboxOption('size', size);
+      });
+    }
+    
+    if (colorContainer) {
+      colorContainer.innerHTML = '';
+      ['Black', 'White', 'Red', 'Pink', 'Green', 'Navy Blue'].forEach(color => {
+        addCheckboxOption('color', color);
+      });
+    }
+  }
+}
+
+// ⭐ Event listener for category selection
+document.addEventListener('DOMContentLoaded', function() {
+  const categorySelect = document.getElementById('category');
+  
+  if (categorySelect) {
+    categorySelect.addEventListener('change', function() {
+      const selectedCategory = this.value;
+      console.log('🎯 Category selected:', selectedCategory);
+      updateProductDetails(selectedCategory);
+    });
+    
+    // Also update on page load if category is already selected
+    if (categorySelect.value) {
+      updateProductDetails(categorySelect.value);
+    }
+  }
+  
+  console.log('📋 FilterConfig loaded with categories:', Object.keys(filterConfig));
+});
+
+// Add form debug functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const productForm = document.querySelector('form[action="/products"]');
+  
+  if (productForm) {
+    console.log('✅ Product form found');
+    
+    productForm.addEventListener('submit', function(e) {
+      console.log('🚀 Form submission started');
+      
+      // Get form data
+      const formData = new FormData(this);
+      
+      console.log('📋 Form data:');
+      for (let [key, value] of formData.entries()) {
+        if (key === 'imageFiles') {
+          console.log(`  ${key}: ${value.name} (${value.size} bytes)`);
+        } else {
+          console.log(`  ${key}: ${value}`);
+        }
+      }
+      
+      // Check required fields
+      const name = formData.get('name');
+      const price = formData.get('price');
+      
+      if (!name || !price) {
+        console.error('❌ Missing required fields:', { name, price });
+        alert('Please fill in product name and price');
+        e.preventDefault();
+        return false;
+      }
+      
+      console.log('✅ Form validation passed, submitting...');
+    });
+  } else {
+    console.error('❌ Product form not found');
+  }
+});
+
+// Enhanced Product Details Functions
+function addCustomOption(fieldName) {
+  const customInput = document.getElementById(fieldName + '-custom');
+  const select = document.getElementById(fieldName);
+  const value = customInput.value.trim();
+  
+  if (value) {
+    // Add to dropdown
+    const option = new Option(value, value);
+    select.add(option);
+    select.value = value;
+    
+    // Clear custom input
+    customInput.value = '';
+    
+    console.log(`✅ Added custom ${fieldName}: ${value}`);
+  }
+}
+
+function addMultipleOption(fieldName) {
+  const customInput = document.getElementById(fieldName + '-custom');
+  const value = customInput.value.trim();
+  
+  if (value) {
+    // Add to checkbox group
+    addCheckboxOption(fieldName, value);
+    
+    // Clear custom input
+    customInput.value = '';
+    
+    console.log(`✅ Added custom ${fieldName}: ${value}`);
+  }
+}
+
+function addCheckboxOption(fieldName, value) {
+  const container = document.getElementById(fieldName + '-options');
+  
+  // Check if option already exists
+  const existing = container.querySelector(`input[value="${value}"]`);
+  if (existing) return;
+  
+  const checkboxWrapper = document.createElement('div');
+  checkboxWrapper.className = 'checkbox-option';
+  
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.id = `${fieldName}-${value.replace(/\s+/g, '-').toLowerCase()}`;
+  checkbox.value = value;
+  checkbox.onchange = () => updateSelectedTags(fieldName);
+  
+  const label = document.createElement('label');
+  label.htmlFor = checkbox.id;
+  label.textContent = value;
+  
+  checkboxWrapper.appendChild(checkbox);
+  checkboxWrapper.appendChild(label);
+  container.appendChild(checkboxWrapper);
+}
+
+function updateSelectedTags(fieldName) {
+  const checkboxes = document.querySelectorAll(`#${fieldName}-options input[type="checkbox"]:checked`);
+  const values = Array.from(checkboxes).map(cb => cb.value);
+  
+  // Update hidden field
+  document.getElementById(fieldName + '-hidden').value = values.join(', ');
+  
+  // Update visual tags
+  const tagsContainer = document.getElementById(fieldName + '-tags');
+  tagsContainer.innerHTML = '';
+  
+  values.forEach(value => {
+    const tag = document.createElement('span');
+    tag.className = 'selected-tag';
+    tag.innerHTML = `${value} <button type="button" onclick="removeTag('${fieldName}', '${value}')" class="remove-tag">×</button>`;
+    tagsContainer.appendChild(tag);
+  });
+}
+
+function removeTag(fieldName, value) {
+  const checkbox = document.querySelector(`#${fieldName}-options input[value="${value}"]`);
+  if (checkbox) {
+    checkbox.checked = false;
+    updateSelectedTags(fieldName);
+  }
+}
+
+// Initialize multiple select fields when category changes
+function initializeMultipleSelects(categoryKey, filterData) {
+  // Initialize Size options
+  if (filterData['According to Size']) {
+    const sizeContainer = document.getElementById('size-options');
+    sizeContainer.innerHTML = '';
+    filterData['According to Size'].forEach(size => {
+      addCheckboxOption('size', size);
+    });
+  }
+  
+  // Initialize Color options
+  if (filterData['According to Color']) {
+    const colorContainer = document.getElementById('color-options');
+    colorContainer.innerHTML = '';
+    filterData['According to Color'].forEach(color => {
+      addCheckboxOption('color', color);
+    });
+  }
+}
+</script>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>
+
+<style>
+/* Enhanced Product Details Styling */
+.custom-select-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.custom-select-wrapper select {
+  flex: 1;
+  min-width: 200px;
+}
+
+.custom-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 8px 12px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.add-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.add-btn:hover {
+  background: #3730a3;
+}
+
+.multi-select-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  background: #f9fafb;
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.checkbox-option input[type="checkbox"] {
+  margin: 0;
+  width: auto;
+}
+
+.checkbox-option label {
+  margin: 0;
+  font-size: 14px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.custom-option-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.selected-tag {
+  background: #4f46e5;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.remove-tag {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.remove-tag:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .custom-select-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .custom-select-wrapper select,
+  .custom-input {
+    min-width: auto;
+  }
+  
+  .checkbox-group {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+  
+  .custom-option-input {
+    flex-direction: column;
+  }
+}
+</style>

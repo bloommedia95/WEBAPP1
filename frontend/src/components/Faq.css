@@ -1,0 +1,112 @@
+/* 
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #f8faff, #e3e9f7);
+  color: #222;
+} */
+
+/* Container */
+.faq-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 50px 0;
+}
+
+.menu button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #000000;
+  padding: 10px 20px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.menu button.active {
+  color: #fff;
+  background: linear-gradient(135deg, #2c4691, #5a7bd5);
+  box-shadow: 0 6px 15px rgba(44, 70, 145, 0.4);
+  transform: scale(1.1);
+}
+
+.menu button:hover {
+  color: #2c4691;
+  transform: scale(1.05);
+}
+
+/* Same accordion style for FAQ, Privacy & Terms */
+
+.accordion {
+  max-width: 750px;
+  margin: 0 auto 80px auto;
+}
+
+.accordion-item {
+  background: #fff;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-header {
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+  position: relative;
+  background: #f5f8ff;
+}
+
+.accordion-header::after {
+  content: "▼";
+  position: absolute;
+  right: 20px;
+  transition: transform 0.3s ease;
+}
+
+.accordion-header.active {
+  background: linear-gradient(135deg, #2c4691, #5a7bd5);
+  color: #fff;
+}
+
+.accordion-header.active::after {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 20px;
+  background: #fdfdfd;
+}
+
+.accordion-content p {
+  padding: 15px 0;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Force show for Privacy/Terms */
+.accordion-item.open .accordion-content {
+  max-height: 500px;
+}
+
+.accordion-item.open .accordion-header::after {
+  transform: rotate(180deg);
+}

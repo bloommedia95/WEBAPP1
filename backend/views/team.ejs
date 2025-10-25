@@ -1,0 +1,117 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Team Members</h1>
+
+  <!-- Add Team Member Form -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/team/add" method="POST" class="team-form">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter full name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter email address" required />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone" placeholder="Enter phone number" />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="">Select Role</option>
+          <option value="Manager">Manager</option>
+          <option value="Staff">Staff</option>
+          <option value="Developer">Developer</option>
+          <option value="Designer">Designer</option>
+          <option value="Support">Support</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="department">Department</label>
+        <select id="department" name="department" required>
+          <option value="">Select Department</option>
+          <option value="Sales">Sales</option>
+          <option value="Marketing">Marketing</option>
+          <option value="IT">IT</option>
+          <option value="HR">HR</option>
+          <option value="Operations">Operations</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Add Team Member</button>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Team Members Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && (userPermissions.team.edit || userPermissions.team.delete))) { %>
+          <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (teamMembers && teamMembers.length > 0) { %>
+          <% teamMembers.forEach((member, i) => { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= member.name %></td>
+              <td><%= member.email %></td>
+              <td><%= member.phone || 'N/A' %></td>
+              <td><%= member.role %></td>
+              <td><%= member.department %></td>
+              <td>
+                <span class="badge <%= (member.status || 'active').toLowerCase() %>">
+                  <%= member.status || 'Active' %>
+                </span>
+              </td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && (userPermissions.team.edit || userPermissions.team.delete))) { %>
+              <td>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.edit)) { %>
+                <button class="btn-small edit">Edit</button>
+                <% } %>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.delete)) { %>
+                <form action="/team/delete/<%= member._id %>" method="POST" style="display:inline;">
+                  <button type="submit" class="btn-small danger">Delete</button>
+                </form>
+                <% } %>
+              </td>
+              <% } %>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="<%= (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && (userPermissions.team.edit || userPermissions.team.delete))) ? '8' : '7' %>" class="text-center">
+              No team members found.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>

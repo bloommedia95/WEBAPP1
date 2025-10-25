@@ -1,0 +1,277 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1>Invoices Create</h1>
+
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.invoices && userPermissions.invoices.create)) { %>
+  <form id="invoiceForm" class="invoice-form">
+    <!-- Header / Logo -->
+    <div class="invoice-header">
+      <img src="/images/logo.png" alt="Larkon Logo" class="logo">
+    </div>
+
+    <!-- Invoice Info -->
+     <div class="invoice-bgcolor">
+    <div class="invoice-info">
+  <div class="form-group">
+    <label>Sender Name</label>
+    <input type="text" placeholder="First name">
+
+    <label>Sender Full Address</label>
+    <textarea placeholder="Enter address"></textarea>
+
+    <label>Phone Number</label>
+    <input type="text" placeholder="Number">
+  </div>
+
+  <div class="form-group">
+    <label>Invoice Number</label>
+    <input type="text" value="#INV-0758267/90">
+
+    <label>Issue Date</label>
+    <input type="date">
+
+    <label>Due Date</label>
+    <input type="date">
+
+    <label>Amount</label>
+    <input type="number" value="0">
+
+    <label>Status</label>
+    <select>
+      <option>Paid</option>
+      <option>Unpaid</option>
+      <option>Pending</option>
+    </select>
+  </div>
+</div>
+
+    <!-- Issue From / Issue For -->
+    <div class="issue-section">
+      <div class="issue-from">
+        <h4>Issue From :</h4>
+        <input type="text" placeholder="First name">
+        <input type="text" placeholder="Enter address">
+        <input type="text" placeholder="Number">
+        <input type="email" placeholder="Email Address">
+      </div>
+
+      <div class="issue-for">
+        <h4>Issue For :</h4>
+        <input type="text" placeholder="First name">
+        <input type="text" placeholder="Enter address">
+        <input type="text" placeholder="Number">
+        <input type="email" placeholder="Email Address">
+      </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="product-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Tax</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="productBody">
+          <tr>
+            <td><input type="text" placeholder="Product 1"></td>
+            <td>
+              <button type="button" class="minus">-</button>
+              <input type="number" value="1">
+              <button type="button" class="plus">+</button>
+            </td>
+            <td><input type="number" value="0"></td>
+            <td><input type="number" value="0"></td>
+            <td><input type="number" value="0" readonly></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" class="clear-btn">Clear Product</button>
+      <button type="button" class="add-btn">Add More</button>
+    </div>
+
+    <!-- Totals -->
+    
+    <div class="totals-section">
+  <label>Sub Total : <input type="number" name="subtotal" value="0" readonly></label>
+  <label>Discount : <input type="number" name="discount" value="0"></label>
+  <label>Estimated Tax (15.5%) : <input type="number" name="esttax" value="0" readonly></label>
+  <label>Grand Amount : <input type="number" name="grandtotal" value="0" readonly></label>
+</div>
+<button type="button" id="saveInvoiceBtn">Save Invoice</button>
+
+  </form>
+  <% } else { %>
+  <p class="text-center text-gray-500 py-8">You don't have permission to create invoices.</p>
+  <% } %>
+</div>
+</div>
+<script>
+  const productBody = document.getElementById('productBody');
+  const addBtn = document.querySelector('.add-btn');
+  const clearBtn = document.querySelector('.clear-btn');
+
+  addBtn.addEventListener('click', () => {
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td><input type="text" placeholder="Product"></td>
+      <td>
+        <button type="button" class="minus">-</button>
+        <input type="number" value="1">
+        <button type="button" class="plus">+</button>
+      </td>
+      <td><input type="number" value="0"></td>
+      <td><input type="number" value="0"></td>
+      <td><input type="number" value="0" readonly></td>
+    `;
+    productBody.appendChild(newRow);
+    attachRowEvents(newRow); // attach plus/minus functionality
+  });
+
+  clearBtn.addEventListener('click', () => {
+    productBody.innerHTML = '';
+  });
+
+  function attachRowEvents(row) {
+    const minusBtn = row.querySelector('.minus');
+    const plusBtn = row.querySelector('.plus');
+    const qtyInput = row.querySelector('input[type="number"]');
+
+    minusBtn.addEventListener('click', () => {
+      if (qtyInput.value > 1) qtyInput.value--;
+    });
+
+    plusBtn.addEventListener('click', () => {
+      qtyInput.value++;
+    });
+  }
+
+  // Attach events to initial row
+  attachRowEvents(productBody.querySelector('tr'));
+
+
+
+  
+ function calculateTotals() {
+    const rows = document.querySelectorAll('#productBody tr');
+    let subTotal = 0;
+
+    rows.forEach(row => {
+      const qty = parseFloat(row.querySelector('td:nth-child(2) input[type="number"]').value) || 0;
+      const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
+      const tax = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;
+
+      // total per product (qty × price + tax %)
+      const productTotal = qty * price + (qty * price * tax / 100);
+      row.querySelector('td:nth-child(5) input').value = productTotal.toFixed(2);
+
+      subTotal += productTotal;
+    });
+
+    // totals section
+    const discount = parseFloat(document.querySelector('.totals-section input[name="discount"]').value) || 0;
+    const estTax = subTotal * 0.155;
+    const grandTotal = subTotal - discount + estTax;
+
+    document.querySelector('.totals-section input[name="subtotal"]').value = subTotal.toFixed(2);
+    document.querySelector('.totals-section input[name="esttax"]').value = estTax.toFixed(2);
+    document.querySelector('.totals-section input[name="grandtotal"]').value = grandTotal.toFixed(2);
+  }
+
+  // plus/minus functionality
+  function attachRowEvents(row) {
+    const minusBtn = row.querySelector('.minus');
+    const plusBtn = row.querySelector('.plus');
+    const qtyInput = row.querySelector('td:nth-child(2) input[type="number"]');
+
+    minusBtn.addEventListener('click', () => {
+      if (qtyInput.value > 1) qtyInput.value--;
+      calculateTotals();
+    });
+
+    plusBtn.addEventListener('click', () => {
+      qtyInput.value++;
+      calculateTotals();
+    });
+
+    row.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', calculateTotals);
+    });
+  }
+
+  // attach events to all rows on load
+  document.querySelectorAll('#productBody tr').forEach(attachRowEvents);
+
+  // initial calculation
+  calculateTotals();
+
+
+
+
+  document.getElementById("saveInvoiceBtn").addEventListener("click", () => {
+    calculateTotals(); // ensure totals update before saving
+
+    const products = [];
+    document.querySelectorAll("#productBody tr").forEach(row => {
+      products.push({
+        name: row.querySelector("td:nth-child(1) input").value,
+        quantity: row.querySelector("td:nth-child(2) input[type='number']").value,
+        price: row.querySelector("td:nth-child(3) input").value,
+        tax: row.querySelector("td:nth-child(4) input").value,
+        total: row.querySelector("td:nth-child(5) input").value
+      });
+    });
+
+    const invoiceData = {
+      senderName: document.querySelector(".invoice-left input[placeholder='First name']").value,
+      senderAddress: document.querySelector(".invoice-left textarea").value,
+      phone: document.querySelector(".invoice-left input[placeholder='Number']").value,
+      invoiceNumber: document.querySelector(".invoice-right input[value^='#INV']").value,
+      issueDate: document.querySelector(".invoice-right input[type='date']").value,
+      dueDate: document.querySelectorAll(".invoice-right input[type='date']")[1].value,
+      amount: document.querySelector(".invoice-right input[type='number']").value,
+      status: document.querySelector(".invoice-right select").value,
+      issueFrom: {
+        name: document.querySelector(".issue-from input[placeholder='First name']").value,
+        address: document.querySelector(".issue-from input[placeholder='Enter address']").value,
+        phone: document.querySelector(".issue-from input[placeholder='Number']").value,
+        email: document.querySelector(".issue-from input[placeholder='Email Address']").value,
+      },
+      issueFor: {
+        name: document.querySelector(".issue-for input[placeholder='First name']").value,
+        address: document.querySelector(".issue-for input[placeholder='Enter address']").value,
+        phone: document.querySelector(".issue-for input[placeholder='Number']").value,
+        email: document.querySelector(".issue-for input[placeholder='Email Address']").value,
+      },
+      products,
+      subtotal: document.querySelector("input[name='subtotal']").value,
+      discount: document.querySelector("input[name='discount']").value,
+      estTax: document.querySelector("input[name='esttax']").value,
+      grandTotal: document.querySelector("input[name='grandtotal']").value,
+    };
+
+    fetch("/invoice", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(invoiceData),
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert("Invoice saved successfully!");
+        console.log(data);
+      })
+      .catch(err => console.error("Error:", err));
+  });
+</script>
+
+
+<%- include('partials/footer') %>

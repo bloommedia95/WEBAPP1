@@ -1,0 +1,122 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+<%- include('./partials/topbar') %>
+
+<div class="content">
+  <div class="profile-container">
+    <h1 class="page-title">My Profile</h1>
+    
+    <div class="profile-card">
+      <!-- Name -->
+      <div class="profile-field">
+        <label>NAME</label>
+        <div class="field-value"><%= user.name %></div>
+      </div>
+      
+      <!-- Email -->
+      <div class="profile-field">
+        <label>EMAIL</label>
+        <div class="field-value"><%= user.email %></div>
+      </div>
+      
+      <!-- Role -->
+      <div class="profile-field">
+        <label>ROLE</label>
+        <div class="role-badge <%= user.role.toLowerCase() %>">
+          <%= user.role === 'superadmin' ? 'SUPERADMIN' : user.role.toUpperCase() %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.profile-field {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.profile-field:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.profile-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.field-value {
+  font-size: 16px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.superadmin {
+  background: #e74c3c;
+  color: white;
+}
+
+.role-badge.admin {
+  background: #3498db;
+  color: white;
+}
+
+.role-badge.editor {
+  background: #2ecc71;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 15px;
+  }
+  
+  .profile-card {
+    padding: 20px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+}
+</style>
+
+<%- include('partials/footer') %>

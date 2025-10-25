@@ -1,0 +1,64 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1 class="page-title">Languages</h1>
+
+  <div class="card settings-card">
+    <div class="card-body">
+      <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.languages && userPermissions.languages.create)) { %>
+      <div class="form-wrap mb-6">
+        <form action="/languages/add" method="POST" class="language-form">
+          <div class="form-group">
+            <label for="languageName">Language Name</label>
+            <input type="text" id="languageName" name="name" class="form-control" placeholder="e.g. English" required />
+          </div>
+          <div class="form-group">
+            <label for="langCode">Code</label>
+            <input type="text" id="langCode" name="code" class="form-control" placeholder="e.g. en" required />
+          </div>
+          <div class="form-group full-width">
+            <button type="submit" class="btn btn-primary btn-small">Add Language</button>
+          </div>
+        </form>
+      </div>
+      <% } %>
+
+      <div class="table-wrap">
+        <table class="orders-table table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Code</th>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.languages && userPermissions.languages.delete)) { %>
+              <th>Actions</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% languages.forEach((lang, i) => { %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= lang.name %></td>
+                <td><%= lang.code %></td>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.languages && userPermissions.languages.delete)) { %>
+                <td>
+                  <form action="/languages/delete/<%= lang.code %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-small danger">Delete</button>
+                  </form>
+                </td>
+                <% } %>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

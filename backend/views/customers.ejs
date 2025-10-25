@@ -1,0 +1,121 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Customers</h1>
+
+  <!-- Manage Customers Form - only show if user has create permission -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.customers && userPermissions.customers.create)) { %>
+  <div class="order-form-wrap mb-6 p-6 rounded shadow-lg">
+    <h2>Manage Customers</h2>
+    <!-- ✅ Backend ko POST karega -->
+    <form action="/customers/add" method="POST" class="mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <input type="text" name="phone" placeholder="Phone Number" />
+
+        <!-- Status + Button in one row -->
+        <div class="flex gap-3">
+          <select name="status" required class="flex-1">
+            <option value="">Select Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+          <button type="submit" class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+            Add Customer
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Search Bar BELOW form -->
+  <div class="toolbar mb-4">
+    <input 
+      type="text" 
+      id="search" 
+      placeholder="Search customers..." 
+      class="search-input" 
+    />
+  </div>
+
+  <!-- Customers Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Orders</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.customers && userPermissions.customers.delete)) { %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody id="customerBody">
+        <% customers.forEach(c => { %>
+          <tr>
+            <td><%= c.name %></td>
+            <td><%= c.email %></td>
+            <td><%= c.phone %></td>
+            <td><%= c.orders %></td>
+            <td>
+              <span class="badge <%= c.status.toLowerCase() %>"><%= c.status %></span>
+            </td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.customers && userPermissions.customers.delete)) { %>
+            <td>
+              <a href="/customers/delete/<%= c._id %>" class="btn-delete" onclick="return confirm('Delete this customer?')">Delete</a>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<script>
+  // ✅ Sirf search ka code rakha hai (add customer JS hata diya)
+  document.getElementById("search").addEventListener("input", function() {
+    const q = this.value.toLowerCase();
+    let found = false;
+
+    document.querySelectorAll("#customerBody tr").forEach(row => {
+      if (row.innerText.toLowerCase().includes(q)) {
+        row.style.display = "";
+        found = true;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    // Remove old "no results" row if exists
+    const noRow = document.getElementById("noResultsRow");
+    if (noRow) noRow.remove();
+
+    // If nothing found, show message row
+    if (!found) {
+      const tbody = document.getElementById("customerBody");
+      const newRow = document.createElement("tr");
+      newRow.id = "noResultsRow";
+      newRow.innerHTML = `
+        <td colspan="6" class="text-center text-gray-500 py-4">
+          ❌ No customers found. 
+          <a href="#" class="text-green-600 font-semibold hover:underline">Add new customer?</a>
+        </td>
+      `;
+      tbody.appendChild(newRow);
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

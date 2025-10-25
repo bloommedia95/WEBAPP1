@@ -1,0 +1,419 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+<%- include('./partials/topbar') %>
+
+<div class="content">
+  <div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-section">
+        <h1 class="page-title">ROLE MANAGEMENT</h1>
+      </div>
+      <!-- <div class="page-actions">
+        <button class="refresh-btn" onclick="loadRoleData()">🔄</button>
+      </div> -->
+    </div>
+
+    <!-- Test Content -->
+    <div style="padding: 20px; background: white; border-radius: 10px; margin: 20px 0;">
+      <h2>🎭 Role Management System</h2>
+      <p>Current User: <%= userRole %></p>
+      <p>Existing Roles: <%= existingRoles ? existingRoles.length : 0 %></p>
+      <p>Users with Roles: <%= usersWithRoles ? usersWithRoles.length : 0 %></p>
+    </div>
+
+    <!-- Combined Role Creation and Assignment Form -->
+    <div style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+      <h3>� Create Role & Assign to User</h3>
+      <form id="assignRoleForm">
+        <div style="margin-bottom: 20px;">
+          <label for="userEmail">User Email:</label>
+          <input type="email" id="userEmail" name="userEmail" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" placeholder="user@example.com" required>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label for="userPassword">Password:</label>
+          <input type="password" id="userPassword" name="userPassword" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Enter password" required>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label for="assignRole">Select Role or Create New:</label>
+          <select id="assignRole" name="roleName" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" required>
+            <option value="">Select existing role or type new...</option>
+            <% if (existingRoles && existingRoles.length > 0) { %>
+              <% existingRoles.forEach(role => { %>
+                <option value="<%= role %>"><%= role %></option>
+              <% }) %>
+            <% } %>
+            <option value="custom">+ Create New Role</option>
+          </select>
+        </div>
+        
+        <!-- Custom Role Input (hidden by default) -->
+        <div id="customRoleDiv" style="margin-bottom: 20px; display: none;">
+          <label for="customRoleName">New Role Name:</label>
+          <input type="text" id="customRoleName" name="customRoleName" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" placeholder="e.g., Manager, Editor, Viewer">
+        </div>
+        
+        <button type="submit" style="background: #f093fb; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          🎯 Create/Assign Role
+        </button>
+      </form>
+    </div>
+
+    <!-- Users List -->
+    <div style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+      <h3>📋 Current Users & Roles</h3>
+      <% if (usersWithRoles && usersWithRoles.length > 0) { %>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f8f9fa;">
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Password</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Role</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% usersWithRoles.forEach(user => { %>
+              <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= user.email %></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                  <input type="password" value="••••••••" data-password="<%= user.password || 'admin' %>" style="width: 120px; padding: 5px; border: 1px solid #ddd; border-radius: 3px;" readonly>
+                  <button onclick="togglePassword(this)" style="margin-left: 5px; padding: 3px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">👁️</button>
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                  <span class="role-badge" style="background: #667eea; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;"><%= user.role %></span>
+                  <button onclick="manageRolePermissions('<%= user.role %>')" style="margin-left: 10px; padding: 4px 8px; background: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">⚙️ Permissions</button>
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No roles assigned yet.</p>
+      <% } %>
+    </div>
+
+    <!-- Permission Management Box -->
+    <div id="permissionBox" style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0; display: none; border: 2px solid #f39c12;">
+      <h3>🔐 Manage Permissions for: <span id="currentRoleTitle">Role Name</span></h3>
+      <p style="color: #666; margin-bottom: 25px;">Set what this role can access and modify in the system</p>
+      
+      <!-- Permission Categories -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <!-- Products Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📦 Products Management</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="products.view" style="margin-right: 8px;"> 👁️ View Products
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="products.create" style="margin-right: 8px;"> ➕ Create Products
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="products.edit" style="margin-right: 8px;"> ✏️ Edit Products
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="products.delete" style="margin-right: 8px;"> 🗑️ Delete Products
+            </label>
+          </div>
+        </div>
+
+        <!-- Orders Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📋 Orders Management</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="orders.view" style="margin-right: 8px;"> 👁️ View Orders
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="orders.create" style="margin-right: 8px;"> ➕ Create Orders
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="orders.edit" style="margin-right: 8px;"> ✏️ Edit Orders
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="orders.delete" style="margin-right: 8px;"> 🗑️ Delete Orders
+            </label>
+          </div>
+        </div>
+
+        <!-- Customers Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">👥 Customers Management</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="customers.view" style="margin-right: 8px;"> 👁️ View Customers
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="customers.create" style="margin-right: 8px;"> ➕ Add Customers
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="customers.edit" style="margin-right: 8px;"> ✏️ Edit Customers
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="customers.delete" style="margin-right: 8px;"> 🗑️ Delete Customers
+            </label>
+          </div>
+        </div>
+
+        <!-- Dashboard Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📊 Dashboard Access</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="dashboard.view" style="margin-right: 8px;"> 👁️ View Dashboard
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="dashboard.export" style="margin-right: 8px;"> 📤 Export Reports
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="dashboard.analytics" style="margin-right: 8px;"> 📈 View Analytics
+            </label>
+          </div>
+        </div>
+
+        <!-- Categories Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📁 Categories Management</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="categories.view" style="margin-right: 8px;"> 👁️ View Categories
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="categories.create" style="margin-right: 8px;"> ➕ Create Categories
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="categories.edit" style="margin-right: 8px;"> ✏️ Edit Categories
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="categories.delete" style="margin-right: 8px;"> 🗑️ Delete Categories
+            </label>
+          </div>
+        </div>
+
+        <!-- Settings Module -->
+        <div class="permission-module" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #2c3e50;">⚙️ System Settings</h4>
+          <div class="permission-checkboxes">
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="settings.view" style="margin-right: 8px;"> 👁️ View Settings
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="settings.edit" style="margin-right: 8px;"> ✏️ Edit Settings
+            </label>
+            <label style="display: block; margin: 8px 0;">
+              <input type="checkbox" name="settings.users" style="margin-right: 8px;"> 👤 Manage Users
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permission Actions -->
+      <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+        <button onclick="selectAllPermissions()" style="background: #2ecc71; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          ✅ Select All
+        </button>
+        <button onclick="clearAllPermissions()" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          ❌ Clear All
+        </button>
+        <button onclick="saveRolePermissions()" style="background: #3498db; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          💾 Save Permissions
+        </button>
+        <button onclick="closePermissionBox()" style="background: #95a5a6; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          ❌ Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple Role Management JavaScript
+let isLoading = false;
+
+// Handle role dropdown change
+document.getElementById('assignRole').addEventListener('change', function() {
+  const customRoleDiv = document.getElementById('customRoleDiv');
+  if (this.value === 'custom') {
+    customRoleDiv.style.display = 'block';
+    document.getElementById('customRoleName').required = true;
+  } else {
+    customRoleDiv.style.display = 'none';
+    document.getElementById('customRoleName').required = false;
+  }
+});
+
+// Combined Create/Assign Role Form Handler
+document.getElementById('assignRoleForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  if (isLoading) return;
+  isLoading = true;
+  
+  const formData = new FormData(e.target);
+  const userEmail = formData.get('userEmail');
+  const userPassword = formData.get('userPassword');
+  let roleName = formData.get('roleName');
+  const customRoleName = formData.get('customRoleName');
+  
+  // If custom role is selected, use the custom role name
+  if (roleName === 'custom' && customRoleName) {
+    roleName = customRoleName.trim();
+  }
+  
+  console.log('Creating/Assigning role:', roleName, 'to user:', userEmail);
+  
+  if (!userEmail.trim() || !userPassword.trim() || !roleName) {
+    alert('Please fill in all fields');
+    isLoading = false;
+    return;
+  }
+  
+  try {
+    // First create the role if it's a new one
+    if (formData.get('roleName') === 'custom') {
+      console.log('Creating new role:', roleName);
+      const createResponse = await fetch('/api/roles/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          roleName: roleName,
+          permissions: ['basic'] // Default permissions
+        })
+      });
+      
+      const createResult = await createResponse.json();
+      if (!createResult.success) {
+        throw new Error(createResult.error || 'Failed to create role');
+      }
+      console.log('✅ Role created successfully');
+    }
+    
+    // Then assign the role to user
+    const response = await fetch('/api/roles/assign', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userEmail: userEmail.trim(),
+        userPassword: userPassword.trim(),
+        roleName: roleName
+      })
+    });
+    
+    const result = await response.json();
+    console.log('Assign role result:', result);
+    
+    if (result.success) {
+      alert(`✅ ${result.message}`);
+      e.target.reset();
+      document.getElementById('customRoleDiv').style.display = 'none';
+      window.location.reload();
+    } else {
+      alert(`❌ Error: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Error creating/assigning role:', error);
+    alert('❌ Failed to create/assign role. Please try again.');
+  } finally {
+    isLoading = false;
+  }
+});
+
+// Toggle password visibility
+function togglePassword(button) {
+  const passwordInput = button.previousElementSibling;
+  const actualPassword = passwordInput.getAttribute('data-password'); // Get actual password from data attribute
+  
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    passwordInput.value = actualPassword; // Show actual password from data
+    button.textContent = '🙈';
+  } else {
+    passwordInput.type = 'password';
+    passwordInput.value = '••••••••';
+    button.textContent = '👁️';
+  }
+}
+
+// Navigate to superadmin page for role permission management
+function manageRolePermissions(roleName) {
+  console.log('🎯 Redirecting to superadmin page for role:', roleName);
+  
+  // Redirect to superadmin page with role parameter
+  window.location.href = `/superadmin?role=${encodeURIComponent(roleName)}`;
+}
+
+function closePermissionBox() {
+  document.getElementById('permissionBox').style.display = 'none';
+  currentRole = '';
+  currentUserEmail = '';
+}
+
+function selectAllPermissions() {
+  const checkboxes = document.querySelectorAll('#permissionBox input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = true;
+  });
+}
+
+function clearAllPermissions() {
+  const checkboxes = document.querySelectorAll('#permissionBox input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+}
+
+function saveRolePermissions() {
+  if (!currentRole) {
+    alert('No role selected');
+    return;
+  }
+  
+  const checkboxes = document.querySelectorAll('#permissionBox input[type="checkbox"]');
+  const permissions = {};
+  
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      const parts = checkbox.name.split('.');
+      const module = parts[0];
+      const action = parts[1];
+      
+      if (!permissions[module]) {
+        permissions[module] = {};
+      }
+      permissions[module][action] = true;
+    }
+  });
+  
+  console.log('Saving permissions for role:', currentRole);
+  console.log('Permissions:', permissions);
+  
+  // Show success message
+  alert(`✅ Permissions saved for role: ${currentRole}\n\nSet permissions:\n${JSON.stringify(permissions, null, 2)}`);
+  
+  // Close permission box
+  closePermissionBox();
+}
+
+// Load Role Data
+function loadRoleData() {
+  window.location.reload();
+}
+
+// Page load initialization
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎭 Role Management page loaded');
+  console.log('Current URL:', window.location.href);
+});
+</script>
+
+<%- include('partials/footer') %>

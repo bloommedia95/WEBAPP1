@@ -1,0 +1,112 @@
+<%- include('partials/head') %>
+
+<div class="error-container">
+  <div class="error-content">
+    <h1 class="error-title">⚠️ <%= error.status || 'Error' %></h1>
+    <h2 class="error-subtitle"><%= title || 'Something went wrong' %></h2>
+    <p class="error-message"><%= message || 'An unexpected error occurred' %></p>
+    
+    <div class="error-actions">
+      <a href="/dashboard" class="btn btn-primary">🏠 Go to Dashboard</a>
+      <a href="javascript:history.back()" class="btn btn-secondary">⬅️ Go Back</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.error-content {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  max-width: 500px;
+  width: 90%;
+}
+
+.error-title {
+  font-size: 48px;
+  margin: 0 0 15px 0;
+  color: #e74c3c;
+}
+
+.error-subtitle {
+  font-size: 24px;
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+}
+
+.error-message {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin: 0 0 30px 0;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .error-content {
+    padding: 30px 20px;
+  }
+  
+  .error-title {
+    font-size: 36px;
+  }
+  
+  .error-subtitle {
+    font-size: 20px;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<%- include('partials/footer') %>

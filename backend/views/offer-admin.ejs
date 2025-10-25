@@ -1,0 +1,121 @@
+<%- include('partials/head', { title: 'Offer Management' }) %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Offers</h1>
+
+  <!-- Add Offer Form -->
+  <div class="form-wrap mb-6">
+    <form id="offerForm" autocomplete="off">
+      <div class="form-group">
+        <label for="title">Offer Title</label>
+        <input type="text" id="title" name="title" placeholder="Enter offer title" required />
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" id="description" name="description" placeholder="Enter description" required />
+      </div>
+      <div class="form-group">
+        <label for="code">Code</label>
+        <input type="text" id="code" name="code" placeholder="Enter code" required />
+      </div>
+      <div class="form-group">
+        <label for="minPurchase">Min Purchase</label>
+        <input type="number" id="minPurchase" name="minPurchase" placeholder="Min purchase amount" />
+      </div>
+      <div class="form-group">
+        <label for="bank">Bank</label>
+        <input type="text" id="bank" name="bank" placeholder="Bank name (optional)" />
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Add Offer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Offers Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Code</th>
+          <th>Min Purchase</th>
+          <th>Bank</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="offersTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const apiBase = '/api/offers';
+  const offerForm = document.getElementById('offerForm');
+  const offersTableBody = document.getElementById('offersTableBody');
+
+  async function fetchOffers() {
+    const res = await fetch(apiBase);
+    const offers = await res.json();
+    offersTableBody.innerHTML = offers.map(offer => `
+      <tr>
+        <td>${offer.title}</td>
+        <td>${offer.description}</td>
+        <td>${offer.code}</td>
+        <td>${offer.minPurchase || ''}</td>
+        <td>${offer.bank || ''}</td>
+        <td><span class="status-badge ${offer.status && offer.status.toLowerCase()}">${offer.status}</span></td>
+        <td>
+          <button class="btn-action btn-delete" onclick="deleteOffer('${offer._id}')">❌ Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  offerForm.onsubmit = async e => {
+    e.preventDefault();
+    const data = {
+      title: offerForm.title.value,
+      description: offerForm.description.value,
+      code: offerForm.code.value,
+      minPurchase: offerForm.minPurchase.value ? Number(offerForm.minPurchase.value) : 0,
+      bank: offerForm.bank.value,
+      status: offerForm.status.value
+    };
+    if (!data.title || !data.description || !data.code) {
+      alert('Title, Description, and Code are required!');
+      return;
+    }
+    const resp = await fetch(apiBase, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      alert('Error: ' + (err.message || 'Unknown error'));
+      return;
+    }
+    offerForm.reset();
+    fetchOffers();
+  };
+
+  window.deleteOffer = async id => {
+    await fetch(apiBase + '/' + id, { method: 'DELETE' });
+    fetchOffers();
+  };
+
+  fetchOffers();
+</script>
+<%- include('partials/footer') %>

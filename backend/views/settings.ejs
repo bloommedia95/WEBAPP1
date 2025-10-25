@@ -1,0 +1,544 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Global Settings</h1>
+
+  <!-- Settings Form -->
+  <div class="form-wrap mb-6">
+    <form action="/settings" method="POST" class="settings-form">
+      
+      <!-- General Settings -->
+      <h3>General Settings</h3>
+      <p>Configure your basic application settings and preferences.</p>
+
+      <div class="form-group">
+        <label>Number of images per product</label>
+        <input type="number" name="imagesPerProduct" class="form-control" value="12">
+      </div>
+
+      <div class="form-group">
+        <label>Allow Auto Translation</label>
+        <input type="checkbox" name="autoTranslation">
+      </div>
+
+      <div class="form-group">
+        <label>Default language</label>
+        <select name="defaultLanguage" class="form-control">
+          <option>English</option>
+          <option>Hindi</option>
+          <option>Spanish</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Default currency</label>
+        <select name="currency" class="form-control">
+          <option>Peso Chileno</option>
+          <option>INR</option>
+          <option>USD</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Default time zone</label>
+        <select name="timezone" class="form-control">
+          <option>Indian/Mayotte (GMT+03:00)</option>
+          <option>Asia/Kolkata (GMT+05:30)</option>
+        </select>
+      </div>
+
+      <!-- Theme Settings -->
+      <h3>🎨 Theme Settings</h3>
+      <p>Choose your preferred color theme for the application interface.</p>
+
+      <div class="form-group">
+        <label>Current Theme</label>
+        <div id="current-theme-display" class="current-theme-card">
+          <div class="theme-preview" id="current-theme-preview">
+            <div class="theme-colors">
+              <span class="color-dot primary" id="current-primary"></span>
+              <span class="color-dot secondary" id="current-secondary"></span>
+              <span class="color-dot accent" id="current-accent"></span>
+            </div>
+            <div class="theme-info">
+              <span id="current-theme-name">Loading...</span>
+              <small id="current-theme-desc">Loading theme...</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Available Themes</label>
+        <div id="themes-grid" class="themes-grid">
+          <!-- Themes will be loaded here dynamically -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Default Date Format</label>
+        <select name="dateFormat" class="form-control">
+          <option>D MMM, YYYY</option>
+          <option>YYYY-MM-DD</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Receipt size (width)</label>
+        <select name="receiptSize" class="form-control">
+          <option>57 mm</option>
+          <option>80 mm</option>
+        </select>
+      </div>
+
+      <!-- Invoice Settings -->
+      <h3>Invoice Settings</h3>
+      <p>Configure invoice generation and email sending preferences.</p>
+
+      <div class="form-group">
+        <label>Enable Invoice Send to Customer by email</label>
+        <input type="checkbox" name="enableInvoice" checked>
+      </div>
+
+      <div class="form-group">
+        <label>From Email</label>
+        <input type="email" name="invoiceEmail" class="form-control" value="admin@gmail.com">
+      </div>
+
+      <!-- Company Information -->
+      <h3>Company Information</h3>
+      <p>Enter your company details that will appear on invoices and receipts.</p>
+
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" class="form-control" value="indore">
+      </div>
+
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" name="companyName" class="form-control" value="ecommerce">
+      </div>
+
+      <div class="form-group">
+        <label>Vat Number</label>
+        <input type="text" name="vatNumber" class="form-control" value="47589">
+      </div>
+
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" name="address" class="form-control" value="59 Station Rd, United Kingdom">
+      </div>
+
+      <div class="form-group">
+        <label>Post Code</label>
+        <input type="text" name="postCode" class="form-control" value="2030">
+      </div>
+
+      <!-- Contact Information -->
+      <h3>Contact Information</h3>
+      <p>Provide contact details for customer communication and support.</p>
+
+      <div class="form-group">
+        <label>Contact</label>
+        <input type="text" name="contact" class="form-control" value="019579034">
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="kachabazar@gmail.com">
+      </div>
+
+      <div class="form-group">
+        <label>Website</label>
+        <input type="text" name="website" class="form-control" value="kachabazar-admin.vercel.app">
+      </div>
+
+      <!-- Submit -->
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Update Settings</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Theme Management Styles -->
+<style>
+.current-theme-card {
+  background: #f8faff;
+  border: 2px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.theme-preview {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.theme-colors {
+  display: flex;
+  gap: 8px;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.theme-info span {
+  font-weight: 600;
+  color: #333;
+}
+
+.theme-info small {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.theme-card {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.theme-card:hover {
+  border-color: #2c4691;
+  box-shadow: 0 4px 12px rgba(44, 70, 145, 0.1);
+  transform: translateY(-2px);
+}
+
+.theme-card.active {
+  border-color: #2c4691;
+  background: #f8faff;
+  box-shadow: 0 4px 12px rgba(44, 70, 145, 0.15);
+}
+
+.theme-card.active::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: #2c4691;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.theme-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.theme-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.theme-status {
+  background: #22c55e;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.theme-description {
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.theme-colors-preview {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.theme-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.theme-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 15px;
+  color: #c33;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .themes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .theme-preview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+</style>
+
+<!-- Theme Management Script -->
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('🎨 Initializing Theme Management...');
+  
+  try {
+    // Load current theme and all themes
+    await Promise.all([
+      loadCurrentTheme(),
+      loadAllThemes()
+    ]);
+  } catch (error) {
+    console.error('Failed to initialize themes:', error);
+    showError('Failed to load themes. Please refresh the page.');
+  }
+});
+
+// Load current active theme
+async function loadCurrentTheme() {
+  try {
+    const response = await fetch('/api/themes/active');
+    if (!response.ok) throw new Error('Failed to fetch active theme');
+    
+    const theme = await response.json();
+    displayCurrentTheme(theme);
+    applyThemeToPage(theme);
+  } catch (error) {
+    console.error('Error loading current theme:', error);
+    document.getElementById('current-theme-name').textContent = 'Error loading theme';
+    document.getElementById('current-theme-desc').textContent = 'Please refresh the page';
+  }
+}
+
+// Load all available themes
+async function loadAllThemes() {
+  const grid = document.getElementById('themes-grid');
+  grid.innerHTML = '<div class="theme-loading">🎨 Loading themes...</div>';
+  
+  try {
+    const response = await fetch('/api/themes');
+    if (!response.ok) throw new Error('Failed to fetch themes');
+    
+    const themes = await response.json();
+    displayThemes(themes);
+  } catch (error) {
+    console.error('Error loading themes:', error);
+    grid.innerHTML = '<div class="theme-error">❌ Failed to load themes. Please try again.</div>';
+  }
+}
+
+// Display current theme info
+function displayCurrentTheme(theme) {
+  document.getElementById('current-theme-name').textContent = theme.displayName;
+  document.getElementById('current-theme-desc').textContent = theme.description;
+  
+  // Update color dots
+  document.getElementById('current-primary').style.backgroundColor = theme.colors.primary;
+  document.getElementById('current-secondary').style.backgroundColor = theme.colors.secondary;
+  document.getElementById('current-accent').style.backgroundColor = theme.colors.accent;
+}
+
+// Display all themes in grid
+function displayThemes(themes) {
+  const grid = document.getElementById('themes-grid');
+  
+  if (!themes || themes.length === 0) {
+    grid.innerHTML = '<div class="theme-error">No themes available</div>';
+    return;
+  }
+  
+  grid.innerHTML = themes.map(theme => `
+    <div class="theme-card ${theme.isActive ? 'active' : ''}" 
+         onclick="switchTheme('${theme._id}')" 
+         data-theme-id="${theme._id}">
+      <div class="theme-header">
+        <span class="theme-name">${theme.displayName}</span>
+        ${theme.isActive ? '<span class="theme-status">ACTIVE</span>' : ''}
+      </div>
+      <div class="theme-description">${theme.description}</div>
+      <div class="theme-colors-preview">
+        <div class="theme-color-dot" style="background-color: ${theme.colors.primary}" title="Primary"></div>
+        <div class="theme-color-dot" style="background-color: ${theme.colors.secondary}" title="Secondary"></div>
+        <div class="theme-color-dot" style="background-color: ${theme.colors.accent}" title="Accent"></div>
+        <div class="theme-color-dot" style="background-color: ${theme.colors.success}" title="Success"></div>
+        <div class="theme-color-dot" style="background-color: ${theme.colors.warning}" title="Warning"></div>
+        <div class="theme-color-dot" style="background-color: ${theme.colors.error}" title="Error"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Switch to selected theme
+async function switchTheme(themeId) {
+  console.log('🎨 Switching to theme:', themeId);
+  
+  // Add loading state
+  const themeCard = document.querySelector(`[data-theme-id="${themeId}"]`);
+  const originalContent = themeCard.innerHTML;
+  themeCard.innerHTML = '<div style="text-align: center; padding: 20px;">🔄 Switching...</div>';
+  
+  try {
+    const response = await fetch(`/api/themes/activate/${themeId}`, {
+      method: 'POST'
+    });
+    
+    if (!response.ok) throw new Error('Failed to activate theme');
+    
+    console.log('✅ Theme switched successfully');
+    
+    // Reload themes to update UI
+    await Promise.all([
+      loadCurrentTheme(),
+      loadAllThemes()
+    ]);
+    
+    // Show success message
+    showSuccess('Theme changed successfully! 🎉');
+    
+  } catch (error) {
+    console.error('❌ Error switching theme:', error);
+    themeCard.innerHTML = originalContent; // Restore original content
+    showError('Failed to switch theme. Please try again.');
+  }
+}
+
+// Apply theme colors to current page
+function applyThemeToPage(theme) {
+  if (!theme || !theme.colors) return;
+  
+  const root = document.documentElement;
+  
+  // Apply CSS variables
+  root.style.setProperty('--theme-primary', theme.colors.primary);
+  root.style.setProperty('--theme-secondary', theme.colors.secondary);
+  root.style.setProperty('--theme-accent', theme.colors.accent);
+  root.style.setProperty('--theme-background', theme.colors.background);
+  root.style.setProperty('--theme-surface', theme.colors.surface);
+  root.style.setProperty('--theme-text', theme.colors.text);
+  root.style.setProperty('--theme-text-secondary', theme.colors.textSecondary);
+  root.style.setProperty('--theme-success', theme.colors.success);
+  root.style.setProperty('--theme-warning', theme.colors.warning);
+  root.style.setProperty('--theme-error', theme.colors.error);
+  root.style.setProperty('--theme-border', theme.colors.border);
+  root.style.setProperty('--theme-shadow', theme.colors.shadow);
+  
+  // Apply gradients
+  if (theme.gradients) {
+    root.style.setProperty('--theme-primary-gradient', theme.gradients.primary);
+    root.style.setProperty('--theme-secondary-gradient', theme.gradients.secondary);
+    root.style.setProperty('--theme-success-gradient', theme.gradients.success);
+  }
+  
+  console.log('🎨 Theme colors applied to page');
+}
+
+// Show success message
+function showSuccess(message) {
+  // Create and show a temporary success notification
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    z-index: 9999;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Show error message
+function showError(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ef4444;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    z-index: 9999;
+    font-weight: 500;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => notification.remove(), 4000);
+}
+
+// Add animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

@@ -1,0 +1,102 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Coupons</h1>
+
+  <!-- Add Coupon Form -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/coupons/add" method="POST" class="coupon-form">
+      <div class="form-group">
+        <label for="code">Coupon Code</label>
+        <input type="text" id="code" name="code" placeholder="Enter coupon code" required />
+      </div>
+
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" placeholder="Enter coupon title" required />
+      </div>
+
+      <div class="form-group">
+        <label for="discount">Discount (%)</label>
+        <input type="number" id="discount" name="discount" placeholder="Enter discount percentage" min="1" max="100" required />
+      </div>
+
+      <div class="form-group">
+        <label for="minimumAmount">Minimum Amount</label>
+        <input type="number" id="minimumAmount" name="minimumAmount" placeholder="Minimum order amount" />
+      </div>
+
+      <div class="form-group">
+        <label for="startTime">Start Date</label>
+        <input type="date" id="startTime" name="startTime" required />
+      </div>
+
+      <div class="form-group">
+        <label for="endTime">End Date</label>
+        <input type="date" id="endTime" name="endTime" required />
+      </div>
+
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Add Coupon</button>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Coupons Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Code</th>
+          <th>Title</th>
+          <th>Discount</th>
+          <th>Min Amount</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && (userPermissions.coupons.edit || userPermissions.coupons.delete))) { %>
+          <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% coupons.forEach((coupon, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><strong><%= coupon.code %></strong></td>
+            <td><%= coupon.title %></td>
+            <td><%= coupon.discount %>%</td>
+            <td>$<%= coupon.minimumAmount || '0' %></td>
+            <td><%= coupon.startTime ? new Date(coupon.startTime).toLocaleDateString() : 'N/A' %></td>
+            <td><%= coupon.endTime ? new Date(coupon.endTime).toLocaleDateString() : 'N/A' %></td>
+            <td>
+              <span class="badge <%= new Date() > new Date(coupon.endTime) ? 'inactive' : 'active' %>">
+                <%= new Date() > new Date(coupon.endTime) ? 'Expired' : 'Active' %>
+              </span>
+            </td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && (userPermissions.coupons.edit || userPermissions.coupons.delete))) { %>
+            <td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.edit)) { %>
+              <button class="btn-small edit">Edit</button>
+              <% } %>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.delete)) { %>
+              <form action="/coupons/delete/<%= coupon._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn-small danger">Delete</button>
+              </form>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>

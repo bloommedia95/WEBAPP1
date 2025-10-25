@@ -1,0 +1,255 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title"><%= editBlog ? 'Edit Blog' : 'Blogs' %></h1>
+
+  <!-- Add/Edit Blog Form - only show if user has create permission (for new) or edit permission (for editing) -->
+  <% if (userRole === 'superadmin' || hasFullAccess || 
+         (editBlog && userPermissions && userPermissions.blogs && userPermissions.blogs.edit) ||
+         (!editBlog && userPermissions && userPermissions.blogs && userPermissions.blogs.create)) { %>
+  <div class="form-wrap mb-6">
+    <form 
+      action="<%= editBlog ? '/blogs/edit/' + editBlog._id : '/blogs' %>" 
+      method="POST" 
+      enctype="multipart/form-data"
+    >
+      <!-- Title -->
+      <div class="form-group">
+        <label for="title">Blog Title</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title" 
+          placeholder="Enter blog title" 
+          value="<%= editBlog ? editBlog.title : '' %>" 
+          required 
+        />
+      </div>
+
+      <!-- Banner Image (Main Article Image) -->
+      <div class="form-group">
+        <label for="bannerImage">Banner Image (Main Article Image)</label>
+        <input 
+          type="file" 
+          id="bannerImage" 
+          name="bannerImage" 
+          accept="image/*" 
+          <%= editBlog ? '' : 'required' %> 
+        />
+        <% if (editBlog && editBlog.bannerImage) { %>
+          <div style="margin-top:5px;">
+            <img src="<%= editBlog.bannerImage %>" alt="current-banner" style="width:100px; height:60px; object-fit:cover; border-radius:5px;">
+            <span>Current Banner Image</span>
+          </div>
+        <% } %>
+        <small>This image will be displayed as the main article banner</small>
+      </div>
+
+      <!-- Article Content -->
+      <div class="form-group full-width">
+        <label for="content">Article Content</label>
+        <textarea 
+          id="content" 
+          name="content" 
+          rows="8" 
+          placeholder="Enter main article content (use line breaks for paragraphs)"
+        ><%= editBlog ? editBlog.content : '' %></textarea>
+        <small>This will be the main content of your article</small>
+      </div>
+
+      <!-- Extra Section 1 -->
+      <div class="form-group full-width" style="border: 2px solid #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; background: #f8faff;">
+        <h4 style="color: #4f46e5; margin-bottom: 15px;">📝 Extra Section 1</h4>
+        
+        <div class="form-group">
+          <label for="extraTitle1">Section 1 Title</label>
+          <input 
+            type="text" 
+            id="extraTitle1" 
+            name="extraTitle1" 
+            placeholder="e.g., Must-Have Winter Fashion Staples" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="extraImages1">Section 1 Images (2 images recommended)</label>
+          <input 
+            type="file" 
+            id="extraImages1" 
+            name="extraImages1" 
+            accept="image/*" 
+            multiple
+          />
+          <small>Select 2 images for this section (will be displayed side by side)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="extraContent1">Section 1 Content</label>
+          <textarea 
+            id="extraContent1" 
+            name="extraContent1" 
+            rows="4" 
+            placeholder="Enter content for this section"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Extra Section 2 -->
+      <div class="form-group full-width" style="border: 2px solid #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; background: #f8faff;">
+        <h4 style="color: #4f46e5; margin-bottom: 15px;">📝 Extra Section 2</h4>
+        
+        <div class="form-group">
+          <label for="extraTitle2">Section 2 Title</label>
+          <input 
+            type="text" 
+            id="extraTitle2" 
+            name="extraTitle2" 
+            placeholder="e.g., Elevate Your Look With Statement Outerwear" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="extraImages2">Section 2 Images (2 images recommended)</label>
+          <input 
+            type="file" 
+            id="extraImages2" 
+            name="extraImages2" 
+            accept="image/*" 
+            multiple
+          />
+          <small>Select 2 images for this section (will be displayed side by side)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="extraContent2">Section 2 Content</label>
+          <textarea 
+            id="extraContent2" 
+            name="extraContent2" 
+            rows="4" 
+            placeholder="Enter content for this section"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Extra Section 3 -->
+      <div class="form-group full-width" style="border: 2px solid #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; background: #f8faff;">
+        <h4 style="color: #4f46e5; margin-bottom: 15px;">📝 Extra Section 3</h4>
+        
+        <div class="form-group">
+          <label for="extraTitle3">Section 3 Title</label>
+          <input 
+            type="text" 
+            id="extraTitle3" 
+            name="extraTitle3" 
+            placeholder="e.g., Style Tips & Fashion Guide" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="extraImages3">Section 3 Images (2 images recommended)</label>
+          <input 
+            type="file" 
+            id="extraImages3" 
+            name="extraImages3" 
+            accept="image/*" 
+            multiple
+          />
+          <small>Select 2 images for this section (will be displayed side by side)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="extraContent3">Section 3 Content</label>
+          <textarea 
+            id="extraContent3" 
+            name="extraContent3" 
+            rows="4" 
+            placeholder="Enter content for this section"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="form-group full-width">
+        <label for="categories">Categories (comma separated)</label>
+        <input 
+          type="text" 
+          id="categories" 
+          name="categories" 
+          placeholder="e.g. Fashion, Winter" 
+          value="<%= editBlog ? editBlog.categories.join(', ') : '' %>" 
+        />
+      </div>
+
+      <!-- Submit -->
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">
+          <%= editBlog ? 'Update Blog' : 'Add Blog' %>
+        </button>
+      </div>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Blogs Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Banner</th>
+          <th>Content</th>
+          <th>Extra Sections</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (blogs && blogs.length > 0) { %>
+          <% blogs.forEach(blog => { %>
+            <tr>
+              <td><%= blog.title %></td>
+              <td>
+                <% if (blog.bannerImage) { %>
+                  <img src="<%= blog.bannerImage %>" alt="blog-banner" style="width:50px; height:50px; object-fit:cover; border-radius:5px;" />
+                <% } else { %>
+                  <span>No Banner</span>
+                <% } %>
+              </td>
+              <td><%= blog.content ? blog.content.substring(0, 50) + '...' : 'No content' %></td>
+              <td>
+                <% if (blog.extraSections && blog.extraSections.length > 0) { %>
+                  <%= blog.extraSections.length %> sections
+                <% } else { %>
+                  No extra sections
+                <% } %>
+              </td>
+              <td><%= blog.createdAt.toDateString() %></td>
+              <td>
+                <!-- Edit button - only show if user has edit permission -->
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.blogs && userPermissions.blogs.edit)) { %>
+                  <a href="/blogs/edit/<%= blog._id %>" class="btn-action btn-edit">✏️ Edit</a>
+                <% } %>
+
+                <!-- Delete button - only show if user has delete permission -->
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.blogs && userPermissions.blogs.delete)) { %>
+                  <form action="/blogs/delete/<%= blog._id %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-action btn-delete" onclick="return confirm('Are you sure?')">❌ Delete</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align:center;">No blogs available</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>

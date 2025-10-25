@@ -1,0 +1,72 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title"> Media Library </h1>
+
+  <!-- Upload Section -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.media && userPermissions.media.create)) { %>
+  <div class="upload-box">
+    <form action="/media/upload" method="POST" enctype="multipart/form-data">
+      <input type="file" name="mediaFile" id="mediaFile" required>
+      <button type="submit" class="btn-primary">Upload</button>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Media Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Preview</th>
+          <th>Filename</th>
+          <th>Type</th>
+          <th>Uploaded At</th>
+          <th>Size</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.media && (userPermissions.media.view || userPermissions.media.delete))) { %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% media.forEach(item => { %>
+          <tr>
+            <td><%= item.id %></td>
+            <td>
+              <% if(item.type === "Image") { %>
+                <img src="<%= item.url %>" alt="<%= item.filename %>" class="thumb">
+              <% } else if(item.type === "Video") { %>
+                🎞️
+              <% } else { %>
+                📄
+              <% } %>
+            </td>
+            <td><%= item.filename %></td>
+            <td><%= item.type %></td>
+            <td><%= item.uploadedAt %></td>
+            <td><%= item.size %></td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.media && (userPermissions.media.view || userPermissions.media.delete))) { %>
+            <td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.media && userPermissions.media.view)) { %>
+              <a href="<%= item.url %>" target="_blank" class="btn-small">View</a>
+              <a href="/media/download/<%= item.id %>" class="btn-small">Download</a>
+              <% } %>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.media && userPermissions.media.delete)) { %>
+              <form action="/media/delete/<%= item.id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn-small danger">Delete</button>
+              </form>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

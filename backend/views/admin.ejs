@@ -1,0 +1,177 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+<% if (typeof hideTopbar === 'undefined' || !hideTopbar) { %>
+  <%- include('partials/topbar') %>
+<% } %>
+
+<div class="content">
+  <h1 class="page-title">🔧 Admin Panel</h1>
+  <p class="page-subtitle">Your administrative dashboard and permissions overview</p>
+
+  <!-- User Info Section -->
+  <div class="user-info-section">
+    <div class="user-card">
+      <div class="user-avatar">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <div class="user-details">
+        <h3>Welcome, <%= userEmail || 'Admin' %></h3>
+        <!-- <p class="user-role">Role: <%= userRole === 'superadmin' ? 'Super Administrator' : 'Administrator' %></p>
+        <p class="access-level">Access Level: <%= hasFullAccess ? 'Full Access' : 'Permission Based' %></p> -->
+      </div>
+    </div>
+  </div>
+
+ 
+ 
+    
+
+  <!-- Quick Actions (Dynamic based on permissions) -->
+  <div class="quick-actions-section">
+    <h2 class="section-title">⚡ Available Actions</h2>
+    <p class="page-subtitle">Quick access to modules you have permission to manage</p>
+    
+    <div class="actions-grid">
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.products && userPermissions.products.view)) { %>
+      <div class="action-card" onclick="window.location.href='/products'">
+        <div class="action-icon">�</div>
+        <h3>Products</h3>
+        <p>Manage your product catalog</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.categories && userPermissions.categories.view)) { %>
+      <div class="action-card" onclick="window.location.href='/category'">
+        <i class="fas fa-folder"></i>
+        <h3>Categories</h3>
+        <p>Organize product categories</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.blogs && userPermissions.blogs.view)) { %>
+      <div class="action-card" onclick="window.location.href='/blogs'">
+        <div class="action-icon">📝</div>
+        <h3>Blogs</h3>
+        <p>Create and manage blog content</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.coupons && userPermissions.coupons.view)) { %>
+      <div class="action-card" onclick="window.location.href='/coupon-list'">
+        <div class="action-icon">🎫</div>
+        <h3>Manage Coupons</h3>
+        <p>Create and manage discount coupons</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.orders && userPermissions.orders.view)) { %>
+      <div class="action-card" onclick="window.location.href='/orders'">
+        <div class="action-icon">📋</div>
+        <h3>Orders</h3>
+        <p>View and manage orders</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.customers && userPermissions.customers.view)) { %>
+      <div class="action-card" onclick="window.location.href='/customers'">
+        <div class="action-icon">👤</div>
+        <h3>Customers</h3>
+        <p>Manage customer accounts</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.roles && userPermissions.roles.view)) { %>
+      <div class="action-card" onclick="window.location.href='/roles'">
+        <div class="action-icon">�</div>
+        <h3>Manage Roles</h3>
+        <p>Create and manage user roles and permissions</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.themes && userPermissions.themes.view)) { %>
+      <div class="action-card" onclick="window.location.href='/theme-manager'">
+        <div class="action-icon">🎨</div>
+        <h3>Theme Manager</h3>
+        <p>Customize website appearance and themes</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.attributes && userPermissions.attributes.view)) { %>
+      <div class="action-card" onclick="window.location.href='/attributes'">
+        <div class="action-icon">🏷️</div>
+        <h3>Attributes</h3>
+        <p>Manage product attributes</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.transactions && userPermissions.transactions.view)) { %>
+      <div class="action-card" onclick="window.location.href='/transactions'">
+        <div class="action-icon">�</div>
+        <h3>Transactions</h3>
+        <p>View payment transactions</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.team && userPermissions.team.view)) { %>
+      <div class="action-card" onclick="window.location.href='/team'">
+        <div class="action-icon">👨‍💼</div>
+        <h3>Team Members</h3>
+        <p>Manage staff and team</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.media && userPermissions.media.view)) { %>
+      <div class="action-card" onclick="window.location.href='/media'">
+        <div class="action-icon">🖼️</div>
+        <h3>Media</h3>
+        <p>Manage media library</p>
+      </div>
+      <% } %>
+      
+      <% if (hasFullAccess || userRole === 'superadmin' || (userPermissions && userPermissions.reports && userPermissions.reports.view)) { %>
+      <div class="action-card" onclick="window.location.href='/reports'">
+        <div class="action-icon">�</div>
+        <h3>Reports</h3>
+        <p>View sales and analytics</p>
+      </div>
+      <% } %>
+    </div>
+    
+    <% 
+    // Count available actions for limited users
+    let availableActionsCount = 0;
+    if (!hasFullAccess && userRole !== 'superadmin') {
+      if (userPermissions) {
+        if (userPermissions.products && userPermissions.products.view) availableActionsCount++;
+        if (userPermissions.categories && userPermissions.categories.view) availableActionsCount++;
+        if (userPermissions.blogs && userPermissions.blogs.view) availableActionsCount++;
+        if (userPermissions.coupons && userPermissions.coupons.view) availableActionsCount++;
+        if (userPermissions.orders && userPermissions.orders.view) availableActionsCount++;
+        if (userPermissions.customers && userPermissions.customers.view) availableActionsCount++;
+        if (userPermissions.roles && userPermissions.roles.view) availableActionsCount++;
+        if (userPermissions.themes && userPermissions.themes.view) availableActionsCount++;
+        if (userPermissions.attributes && userPermissions.attributes.view) availableActionsCount++;
+        if (userPermissions.transactions && userPermissions.transactions.view) availableActionsCount++;
+        if (userPermissions.team && userPermissions.team.view) availableActionsCount++;
+        if (userPermissions.media && userPermissions.media.view) availableActionsCount++;
+        if (userPermissions.reports && userPermissions.reports.view) availableActionsCount++;
+      }
+      
+      if (availableActionsCount === 0) {
+    %>
+    <div class="no-actions-message" style="text-align: center; padding: 40px; color: #666; background: #f8f9fa; border-radius: 10px; margin-top: 20px;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+        <span style="font-size: 3em;">🔒</span>
+        <h3 style="margin: 0; color: #333;">No Actions Available</h3>
+        <p style="margin: 0;">Contact your administrator to request access to system modules.</p>
+      </div>
+    </div>
+    <% } else { %>
+    <div class="actions-summary" style="text-align: center; margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; color: #2e7d32;">
+      <p style="margin: 0;"><strong>✅ You have access to <%= availableActionsCount %> module<%= availableActionsCount === 1 ? '' : 's' %></strong></p>
+    </div>
+    <% } } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

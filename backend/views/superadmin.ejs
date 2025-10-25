@@ -1,0 +1,1447 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+<% if (typeof hideTopbar === 'undefined' || !hideTopbar) { %>
+  <%- include('partials/topbar') %>
+<% } %>
+
+<div class="content">
+  <h1 class="page-title">👑 Super Admin</h1>
+  <p class="page-subtitle">Complete system control and advanced user management</p>
+
+ 
+
+  <!-- User Management Section -->
+  <!-- <div class="management-section">
+    <div class="section-header">
+      <h2 class="section-title">👥 User Management</h2>
+      <button class="btn btn-primary" onclick="toggleUserForm()">
+        <i class="fas fa-plus"></i> Add New User
+      </button>
+    </div> -->
+
+    <!-- Add User Form -->
+    <!-- <div id="userFormContainer" class="user-form-container" style="display: none;">
+      <form id="addUserForm" class="user-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userName">Full Name</label>
+            <input type="text" id="userName" name="name" required placeholder="Enter full name">
+          </div>
+          <div class="form-group">
+            <label for="userEmail">Email Address</label>
+            <input type="email" id="userEmail" name="email" required placeholder="admin@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userPassword">Password</label>
+            <input type="password" id="userPassword" name="password" required placeholder="Enter password">
+          </div>
+          <div class="form-group">
+            <label for="userRole">Role</label>
+            <select id="userRole" name="role" required>
+              <option value="">Select Role</option>
+              <option value="superadmin">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="editor">Editor</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" onclick="toggleUserForm()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add User</button>
+        </div>
+      </form>
+    </div> -->
+
+    <!-- Users Table -->
+    <!-- <div class="table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <% if (users && users.length > 0) { %>
+            <% users.forEach(user => { %>
+              <tr>
+                <td>#<%= user._id.toString().slice(-6) %></td>
+                <td><%= user.name %></td>
+                <td><%= user.email %></td>
+                <td><span class="role-badge <%= (user.role || '').toLowerCase() %>"><%= 
+                  user.role === 'superadmin' ? 'Super Admin' :
+                  user.role === 'admin' ? 'Admin' :
+                  user.role === 'editor' ? 'Editor' :
+                  user.role === 'custom' ? 'Custom' :
+                  user.role || 'User' 
+                %></span></td>
+                <td><span class="status-badge <%= (user.status || 'active').toLowerCase() %>"><%= user.status || 'Active' %></span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action edit" onclick="editUser('<%= user._id %>')">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-action delete" onclick="deleteUser('<%= user._id %>')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="no-data">
+                <div class="empty-state">
+                  <i class="fas fa-users" style="font-size: 48px; color: #bdc3c7;"></i>
+                  <h3>No Users Found</h3>
+                  <p>Start by adding your first admin user</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div> -->
+
+  <!-- Admin Permission Management Section -->
+  <div class="management-section">
+    <h2 class="section-title">🔐 Role Permission Management</h2>
+    <p class="page-subtitle">Control what each role can access and modify in the system</p>
+
+    <!-- Role Selection -->
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+      <label for="roleSelect" style="font-weight: 600; color: #2c3e50; margin-bottom: 10px; display: block;">
+        👤 Select Role to Manage Permissions:
+      </label>
+      <select id="roleSelect" onchange="loadRolePermissions()" style="width: 300px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+        <option value="">Choose a role...</option>
+        <% if (availableRoles && availableRoles.length > 0) { %>
+          <% availableRoles.forEach(role => { %>
+            <option value="<%= role %>" <%= preSelectedRole === role ? 'selected' : '' %>>
+              <%= role === 'admin' ? '👨‍💼' : role === 'manager' ? '👔' : role === 'user' ? '👤' : role === 'editor' ? '✏️' : '🎭' %> <%= role.charAt(0).toUpperCase() + role.slice(1) %>
+            </option>
+          <% }) %>
+        <% } %>
+      </select>
+      <p style="color: #666; font-size: 12px; margin: 8px 0 0 0;">
+        Current managing: <span id="currentRoleDisplay"><%= preSelectedRole ? preSelectedRole.charAt(0).toUpperCase() + preSelectedRole.slice(1) : 'None selected' %></span>
+      </p>
+    </div>
+
+    <!-- Permission Categories Table -->
+    <div class="permission-table-container">
+      <table class="permission-table">
+        <thead>
+          <tr>
+            <th class="category-header">Module</th>
+            <th class="permission-header">View</th>
+            <th class="permission-header">Create</th>
+            <th class="permission-header">Edit</th>
+            <th class="permission-header">Delete</th>
+            <th class="permission-header">Export</th>
+            <th class="permission-header">Full Control</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Products Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">📦</span>
+                <div>
+                  <strong>Products</strong>
+                  <p>Product catalog management</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="products-view" checked /></td>
+            <td><input type="checkbox" id="products-create" checked /></td>
+            <td><input type="checkbox" id="products-edit" checked /></td>
+            <td><input type="checkbox" id="products-delete" /></td>
+            <td><input type="checkbox" id="products-export" checked /></td>
+            <td><input type="checkbox" id="products-full" onchange="toggleFullControl('products')" /></td>
+          </tr>
+
+          <!-- Categories Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">📁</span>
+                <div>
+                  <strong>Categories</strong>
+                  <p>Product categories and organization</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="categories-view" checked /></td>
+            <td><input type="checkbox" id="categories-create" checked /></td>
+            <td><input type="checkbox" id="categories-edit" checked /></td>
+            <td><input type="checkbox" id="categories-delete" /></td>
+            <td><input type="checkbox" id="categories-export" /></td>
+            <td><input type="checkbox" id="categories-full" onchange="toggleFullControl('categories')" /></td>
+          </tr>
+
+          <!-- Attributes Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🏷️</span>
+                <div>
+                  <strong>Attributes</strong>
+                  <p>Product attributes and specifications</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="attributes-view" checked /></td>
+            <td><input type="checkbox" id="attributes-create" checked /></td>
+            <td><input type="checkbox" id="attributes-edit" checked /></td>
+            <td><input type="checkbox" id="attributes-delete" /></td>
+            <td><input type="checkbox" id="attributes-export" /></td>
+            <td><input type="checkbox" id="attributes-full" onchange="toggleFullControl('attributes')" /></td>
+          </tr>
+
+          <!-- Blogs Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">📝</span>
+                <div>
+                  <strong>Blogs</strong>
+                  <p>Blog posts and content management</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="blogs-view" checked /></td>
+            <td><input type="checkbox" id="blogs-create" checked /></td>
+            <td><input type="checkbox" id="blogs-edit" checked /></td>
+            <td><input type="checkbox" id="blogs-delete" /></td>
+            <td><input type="checkbox" id="blogs-export" /></td>
+            <td><input type="checkbox" id="blogs-full" onchange="toggleFullControl('blogs')" /></td>
+          </tr>
+           <!-- Coupons Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🎫</span>
+                <div>
+                  <strong>Coupons</strong>
+                  <p>Discount codes and promotions</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="coupons-view" checked /></td>
+            <td><input type="checkbox" id="coupons-create" checked /></td>
+            <td><input type="checkbox" id="coupons-edit" checked /></td>
+            <td><input type="checkbox" id="coupons-delete" /></td>
+            <td><input type="checkbox" id="coupons-export" /></td>
+            <td><input type="checkbox" id="coupons-full" onchange="toggleFullControl('coupons')" /></td>
+          </tr>
+
+          <!-- Orders Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">📋</span>
+                <div>
+                  <strong>Orders</strong>
+                  <p>Order processing and management</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="orders-view" checked /></td>
+            <td><input type="checkbox" id="orders-create" /></td>
+            <td><input type="checkbox" id="orders-edit" checked /></td>
+            <td><input type="checkbox" id="orders-delete" /></td>
+            <td><input type="checkbox" id="orders-export" checked /></td>
+            <td><input type="checkbox" id="orders-full" onchange="toggleFullControl('orders')" /></td>
+          </tr>
+
+          <!-- Transactions Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">💰</span>
+                <div>
+                  <strong>Transactions</strong>
+                  <p>Payment transactions and records</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="transactions-view" checked /></td>
+            <td><input type="checkbox" id="transactions-create" /></td>
+            <td><input type="checkbox" id="transactions-edit" /></td>
+            <td><input type="checkbox" id="transactions-delete" /></td>
+            <td><input type="checkbox" id="transactions-export" checked /></td>
+            <td><input type="checkbox" id="transactions-full" onchange="toggleFullControl('transactions')" /></td>
+          </tr>
+
+          <!-- Customers Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">👥</span>
+                <div>
+                  <strong>Customers</strong>
+                  <p>Customer data and profiles</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="customers-view" checked /></td>
+            <td><input type="checkbox" id="customers-create" checked /></td>
+            <td><input type="checkbox" id="customers-edit" checked /></td>
+            <td><input type="checkbox" id="customers-delete" /></td>
+            <td><input type="checkbox" id="customers-export" checked /></td>
+            <td><input type="checkbox" id="customers-full" onchange="toggleFullControl('customers')" /></td>
+          </tr>
+
+          <!-- Team Members Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">�‍💼</span>
+                <div>
+                  <strong>Team Members</strong>
+                  <p>Staff management and roles</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="team-view" checked /></td>
+            <td><input type="checkbox" id="team-create" /></td>
+            <td><input type="checkbox" id="team-edit" /></td>
+            <td><input type="checkbox" id="team-delete" /></td>
+            <td><input type="checkbox" id="team-export" /></td>
+            <td><input type="checkbox" id="team-full" onchange="toggleFullControl('team')" /></td>
+          </tr>
+
+         
+
+          <!-- Languages Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🌐</span>
+                <div>
+                  <strong>Languages</strong>
+                  <p>Multi-language support settings</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="languages-view" /></td>
+            <td><input type="checkbox" id="languages-create" /></td>
+            <td><input type="checkbox" id="languages-edit" /></td>
+            <td><input type="checkbox" id="languages-delete" /></td>
+            <td><input type="checkbox" id="languages-export" /></td>
+            <td><input type="checkbox" id="languages-full" onchange="toggleFullControl('languages')" /></td>
+          </tr>
+
+          <!-- Currencies Module -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">💱</span>
+                <div>
+                  <strong>Currencies</strong>
+                  <p>Currency settings and exchange rates</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="currencies-view" /></td>
+            <td><input type="checkbox" id="currencies-create" /></td>
+            <td><input type="checkbox" id="currencies-edit" /></td>
+            <td><input type="checkbox" id="currencies-delete" /></td>
+            <td><input type="checkbox" id="currencies-export" /></td>
+            <td><input type="checkbox" id="currencies-full" onchange="toggleFullControl('currencies')" /></td>
+          </tr>
+
+          <!-- Invoice Module -->
+          <!-- <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🧾</span>
+                <div>
+                  <strong>Invoice</strong>
+                  <p>Invoice generation and management</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="invoice-view" checked /></td>
+            <td><input type="checkbox" id="invoice-create" checked /></td>
+            <td><input type="checkbox" id="invoice-edit" checked /></td>
+            <td><input type="checkbox" id="invoice-delete" /></td>
+            <td><input type="checkbox" id="invoice-export" checked /></td>
+            <td><input type="checkbox" id="invoice-full" onchange="toggleFullControl('invoice')" /></td>
+          </tr> -->
+
+       
+
+         
+          <!-- Role Management Module -->
+          <!-- <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">👥</span>
+                <div>
+                  <strong>Role Management</strong>
+                  <p>User roles and permissions control</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="roles-view" /></td>
+            <td><input type="checkbox" id="roles-create" /></td>
+            <td><input type="checkbox" id="roles-edit" /></td>
+            <td><input type="checkbox" id="roles-delete" /></td>
+            <td><input type="checkbox" id="roles-export" /></td>
+            <td><input type="checkbox" id="roles-full" onchange="toggleFullControl('roles')" /></td>
+          </tr> -->
+
+          <!-- Media Module -->
+          <!-- <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🖼️</span>
+                <div>
+                  <strong>Media</strong>
+                  <p>Media files and gallery management</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="media-view" checked /></td>
+            <td><input type="checkbox" id="media-create" checked /></td>
+            <td><input type="checkbox" id="media-edit" checked /></td>
+            <td><input type="checkbox" id="media-delete" /></td>
+            <td><input type="checkbox" id="media-export" checked /></td>
+            <td><input type="checkbox" id="media-full" onchange="toggleFullControl('media')" /></td>
+          </tr> -->
+          <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">🎨</span>
+                <div>
+                  <strong>Theme Management</strong>
+                  <p>Website appearance and themes</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="themes-view" /></td>
+            <td><input type="checkbox" id="themes-create" /></td>
+            <td><input type="checkbox" id="themes-edit" /></td>
+            <td><input type="checkbox" id="themes-delete" /></td>
+            <td><input type="checkbox" id="themes-export" /></td>
+            <td><input type="checkbox" id="themes-full" onchange="toggleFullControl('themes')" /></td>
+          </tr>
+
+           <!-- Reports/Analytics Module -->
+          <!-- <tr class="module-row">
+            <td class="module-name">
+              <div class="module-info">
+                <span class="module-icon">📊</span>
+                <div>
+                  <strong>Reports/Analytics</strong>
+                  <p>Sales reports and analytics</p>
+                </div>
+              </div>
+            </td>
+            <td><input type="checkbox" id="reports-view" checked /></td>
+            <td><input type="checkbox" id="reports-create" /></td>
+            <td><input type="checkbox" id="reports-edit" /></td>
+            <td><input type="checkbox" id="reports-delete" /></td>
+            <td><input type="checkbox" id="reports-export" checked /></td>
+            <td><input type="checkbox" id="reports-full" onchange="toggleFullControl('reports')" /></td>
+          </tr> -->
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Permission Action Buttons -->
+    <div class="permission-actions">
+      <div class="action-buttons-row">
+        <button class="action-btn preset-minimal" onclick="applyPreset('minimal')">
+          📝 Minimal Access
+        </button>
+        <button class="action-btn preset-standard" onclick="applyPreset('standard')">
+          🔧 Standard Admin
+        </button>
+        <button class="action-btn preset-full" onclick="applyPreset('full')">
+          👑 Full Access
+        </button>
+        <button class="action-btn save-permissions" onclick="savePermissions()">
+          💾 Save Permissions
+        </button>
+      </div>
+    </div>
+
+    <!-- Permission Summary -->
+    <div class="permission-summary">
+      <h3>📋 Current Admin Permissions Summary</h3>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>✅ Allowed Actions</h4>
+          <div id="allowed-permissions" class="permission-list">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+        <div class="summary-card">
+          <h4>❌ Restricted Actions</h4>
+          <div id="restricted-permissions" class="permission-list">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.management-section {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-content h3 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.user-form-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 2px dashed #dee2e6;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 25px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.users-table th,
+.users-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.users-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.role-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.superadmin {
+  background: #e74c3c;
+  color: white;
+}
+
+.role-badge.admin {
+  background: #3498db;
+  color: white;
+}
+
+.role-badge.editor {
+  background: #2ecc71;
+  color: white;
+}
+
+.role-badge.custom {
+  background: #f39c12;
+  color: white;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-action.edit {
+  background: #f39c12;
+  color: white;
+}
+
+.btn-action.edit:hover {
+  background: #e67e22;
+}
+
+.btn-action.delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-action.delete:hover {
+  background: #c0392b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+}
+
+.empty-state h3 {
+  margin: 15px 0 10px 0;
+  color: #2c3e50;
+}
+
+.empty-state p {
+  color: #7f8c8d;
+  margin: 0;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+}
+
+/* Permission Management Table Styles */
+.permission-table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.permission-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.permission-table th {
+  background: #34495e;
+  color: white;
+  padding: 15px 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #2c3e50;
+}
+
+.category-header {
+  background: #2c3e50 !important;
+  width: 25%;
+  text-align: left !important;
+}
+
+.permission-header {
+  width: 12.5%;
+  min-width: 80px;
+}
+
+.permission-table td {
+  padding: 15px 10px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+.module-row:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.module-row:hover {
+  background: #e3f2fd;
+  transition: all 0.3s ease;
+}
+
+.module-name {
+  text-align: left !important;
+  padding: 20px 15px !important;
+}
+
+.module-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.module-icon {
+  font-size: 24px;
+  width: 40px;
+  text-align: center;
+}
+
+.module-info strong {
+  color: #2c3e50;
+  font-size: 16px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.module-info p {
+  color: #7f8c8d;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.permission-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+.permission-table input[type="checkbox"]:checked {
+  accent-color: #3498db;
+}
+
+.permission-actions {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.action-buttons-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.preset-minimal {
+  background: #f39c12;
+  color: white;
+}
+
+.preset-standard {
+  background: #3498db;
+  color: white;
+}
+
+.preset-full {
+  background: #e74c3c;
+  color: white;
+}
+
+.save-permissions {
+  background: #2ecc71;
+  color: white;
+  font-size: 16px;
+  padding: 15px 25px;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.permission-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.permission-summary h3 {
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-size: 18px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.summary-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid #3498db;
+}
+
+.summary-card:last-child {
+  border-left-color: #e74c3c;
+}
+
+.summary-card h4 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.permission-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.permission-item {
+  background: white;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-item .icon {
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .control-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .permission-table-container {
+    padding: 10px;
+  }
+  
+  .permission-table {
+    font-size: 12px;
+  }
+  
+  .permission-table th,
+  .permission-table td {
+    padding: 8px 5px;
+  }
+  
+  .module-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 5px;
+  }
+  
+  .module-icon {
+    font-size: 20px;
+  }
+  
+  .action-buttons-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+// Toggle user form
+function toggleUserForm() {
+  const container = document.getElementById('userFormContainer');
+  container.style.display = container.style.display === 'none' ? 'block' : 'none';
+}
+
+// Add user form submission
+document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const userData = {
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+    role: formData.get('role')
+  };
+  
+  console.log('🚀 Sending user data:', userData);
+  
+  try {
+    const response = await fetch('/superadmin/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    console.log('📡 Response status:', response.status);
+    const responseData = await response.json();
+    console.log('📡 Response data:', responseData);
+    
+    if (response.ok) {
+      showNotification('User created successfully!', 'success');
+      toggleUserForm();
+      e.target.reset();
+      location.reload();
+    } else {
+      console.error('❌ Server error:', responseData);
+      showNotification(`Error: ${responseData.error || 'Failed to create user'}`, 'error');
+    }
+  } catch (error) {
+    console.error('❌ Network error creating user:', error);
+    showNotification('Network error. Please check your connection.', 'error');
+  }
+});
+
+// Edit user function
+function editUser(userId) {
+  showNotification('Edit functionality coming soon!', 'info');
+}
+
+// Delete user function
+async function deleteUser(userId) {
+  if (confirm('Are you sure you want to delete this user?')) {
+    try {
+      const response = await fetch(`/superadmin/users/${userId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        showNotification('User deleted successfully!', 'success');
+        location.reload();
+      } else {
+        throw new Error('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      showNotification('Error deleting user. Please try again.', 'error');
+    }
+  }
+}
+
+// Permission Management Functions
+function toggleFullControl(module) {
+  const fullCheckbox = document.getElementById(`${module}-full`);
+  const checkboxes = ['view', 'create', 'edit', 'delete', 'export'];
+  
+  if (fullCheckbox.checked) {
+    // Check all permissions for this module
+    checkboxes.forEach(action => {
+      const checkbox = document.getElementById(`${module}-${action}`);
+      if (checkbox) checkbox.checked = true;
+    });
+  } else {
+    // Uncheck all permissions for this module
+    checkboxes.forEach(action => {
+      const checkbox = document.getElementById(`${module}-${action}`);
+      if (checkbox) checkbox.checked = false;
+    });
+  }
+  
+  updatePermissionSummary();
+}
+
+function applyPreset(presetType) {
+  const modules = ['products', 'categories', 'attributes', 'blogs', 'orders', 'transactions', 'customers', 'team', 'coupons', 'languages', 'currencies', 'invoice', 'media', 'reports', 'roles', 'themes'];
+  const actions = ['view', 'create', 'edit', 'delete', 'export', 'full'];
+  
+  // Clear all checkboxes first
+  modules.forEach(module => {
+    actions.forEach(action => {
+      const checkbox = document.getElementById(`${module}-${action}`);
+      if (checkbox) checkbox.checked = false;
+    });
+  });
+  
+  if (presetType === 'minimal') {
+    // Minimal: Only view access for basic modules
+    const minimalModules = ['products', 'categories', 'orders', 'customers', 'invoice'];
+    minimalModules.forEach(module => {
+      const viewCheckbox = document.getElementById(`${module}-view`);
+      if (viewCheckbox) viewCheckbox.checked = true;
+    });
+    
+  } else if (presetType === 'standard') {
+    // Standard: Full access to business operations, limited system access
+    const standardModules = ['products', 'categories', 'attributes', 'blogs', 'orders', 'transactions', 'customers', 'coupons', 'invoice', 'media', 'reports'];
+    const standardActions = ['view', 'create', 'edit', 'export'];
+    
+    standardModules.forEach(module => {
+      standardActions.forEach(action => {
+        const checkbox = document.getElementById(`${module}-${action}`);
+        if (checkbox) checkbox.checked = true;
+      });
+    });
+    
+  } else if (presetType === 'full') {
+    // Full: All permissions except system-critical ones
+    modules.forEach(module => {
+      actions.forEach(action => {
+        const checkbox = document.getElementById(`${module}-${action}`);
+        if (checkbox) {
+          // Give full access except critical system modules
+          if (['themes', 'roles', 'languages', 'currencies'].includes(module) && ['delete', 'full'].includes(action)) {
+            checkbox.checked = false;
+          } else if (['team'].includes(module) && ['create', 'delete', 'full'].includes(action)) {
+            checkbox.checked = false;
+          } else {
+            checkbox.checked = true;
+          }
+        }
+      });
+    });
+  }
+  
+  updatePermissionSummary();
+  showNotification(`Applied ${presetType} permission preset`, 'success');
+}
+
+function savePermissions() {
+  const selectedRole = document.getElementById('roleSelect').value;
+  
+  if (!selectedRole) {
+    showNotification('Please select a role first!', 'error');
+    return;
+  }
+  
+  const permissions = {};
+  const modules = ['products', 'categories', 'attributes', 'blogs', 'orders', 'transactions', 'customers', 'team', 'coupons', 'languages', 'currencies', 'invoice', 'media', 'reports', 'roles', 'themes'];
+  const actions = ['view', 'create', 'edit', 'delete', 'export'];
+  
+  modules.forEach(module => {
+    permissions[module] = {};
+    actions.forEach(action => {
+      const checkbox = document.getElementById(`${module}-${action}`);
+      permissions[module][action] = checkbox ? checkbox.checked : false;
+    });
+  });
+  
+  showNotification('Saving permissions...', 'info');
+  
+  fetch('/superadmin/permissions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      roleName: selectedRole,
+      permissions: permissions
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showNotification(`✅ ${selectedRole} permissions updated successfully!`, 'success');
+      updatePermissionSummary();
+    } else {
+      throw new Error(data.error || 'Failed to save permissions');
+    }
+  })
+  .catch(error => {
+    console.error('Error saving permissions:', error);
+    showNotification('Error saving permissions. Please try again.', 'error');
+  });
+}
+
+// Load permissions for selected role
+function loadRolePermissions() {
+  const selectedRole = document.getElementById('roleSelect').value;
+  const currentRoleDisplay = document.getElementById('currentRoleDisplay');
+  
+  if (!selectedRole) {
+    currentRoleDisplay.textContent = 'None selected';
+    // Clear all checkboxes
+    const checkboxes = document.querySelectorAll('.permission-table input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    updatePermissionSummary();
+    return;
+  }
+  
+  currentRoleDisplay.textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+  
+  // Load existing permissions for this role
+  fetch(`/superadmin/permissions/${selectedRole}`)
+  .then(response => response.json())
+  .then(permissions => {
+    console.log('Loaded permissions for', selectedRole, ':', permissions);
+    
+    // Apply loaded permissions to checkboxes
+    const modules = ['products', 'categories', 'attributes', 'blogs', 'orders', 'transactions', 'customers', 'team', 'coupons', 'languages', 'currencies', 'invoice', 'media', 'reports', 'roles', 'themes'];
+    const actions = ['view', 'create', 'edit', 'delete', 'export'];
+    
+    // First clear all checkboxes
+    const checkboxes = document.querySelectorAll('.permission-table input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    
+    // Then apply loaded permissions
+    modules.forEach(module => {
+      actions.forEach(action => {
+        const checkbox = document.getElementById(`${module}-${action}`);
+        if (checkbox && permissions[module] && permissions[module][action] !== undefined) {
+          checkbox.checked = permissions[module][action];
+        }
+      });
+    });
+    
+    updatePermissionSummary();
+    showNotification(`✅ Loaded permissions for ${selectedRole}`, 'success');
+  })
+  .catch(error => {
+    console.error('Error loading permissions:', error);
+    showNotification(`Using default permissions for ${selectedRole}`, 'info');
+    updatePermissionSummary();
+  });
+}
+
+// Load existing permissions when page loads
+async function loadExistingPermissions() {
+  try {
+    // Start with empty checkboxes - user needs to select a role first
+    const checkboxes = document.querySelectorAll('.permission-table input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    
+    updatePermissionSummary();
+    showNotification('Select a role to manage its permissions', 'info');
+    
+  } catch (error) {
+    console.error('Error in initialization:', error);
+  }
+}
+
+function updatePermissionSummary() {
+  const allowedDiv = document.getElementById('allowed-permissions');
+  const restrictedDiv = document.getElementById('restricted-permissions');
+  
+  const modules = [
+    { key: 'products', name: 'Products', icon: '📦' },
+    { key: 'categories', name: 'Categories', icon: '📁' },
+    { key: 'attributes', name: 'Attributes', icon: '🏷️' },
+    { key: 'blogs', name: 'Blogs', icon: '📝' },
+    { key: 'orders', name: 'Orders', icon: '📋' },
+    { key: 'transactions', name: 'Transactions', icon: '💰' },
+    { key: 'customers', name: 'Customers', icon: '👥' },
+    { key: 'team', name: 'Team Members', icon: '�‍💼' },
+    { key: 'coupons', name: 'Coupons', icon: '🎫' },
+    { key: 'languages', name: 'Languages', icon: '🌐' },
+    { key: 'currencies', name: 'Currencies', icon: '💱' },
+    { key: 'invoice', name: 'Invoice', icon: '🧾' },
+    { key: 'media', name: 'Media', icon: '🖼️' },
+    { key: 'reports', name: 'Reports', icon: '📊' },
+    { key: 'roles', name: 'Role Management', icon: '👥' },
+    { key: 'themes', name: 'Themes', icon: '🎨' }
+  ];
+  
+  const actions = [
+    { key: 'view', name: 'View', icon: '👁️' },
+    { key: 'create', name: 'Create', icon: '➕' },
+    { key: 'edit', name: 'Edit', icon: '✏️' },
+    { key: 'delete', name: 'Delete', icon: '🗑️' },
+    { key: 'export', name: 'Export', icon: '📤' }
+  ];
+  
+  let allowedHtml = '';
+  let restrictedHtml = '';
+  
+  modules.forEach(module => {
+    actions.forEach(action => {
+      const checkbox = document.getElementById(`${module.key}-${action.key}`);
+      const itemHtml = `
+        <div class="permission-item">
+          <span class="icon">${module.icon}</span>
+          ${module.name} - ${action.name}
+        </div>
+      `;
+      
+      if (checkbox && checkbox.checked) {
+        allowedHtml += itemHtml;
+      } else {
+        restrictedHtml += itemHtml;
+      }
+    });
+  });
+  
+  allowedDiv.innerHTML = allowedHtml || '<p style="color: #7f8c8d; font-style: italic;">No permissions granted</p>';
+  restrictedDiv.innerHTML = restrictedHtml || '<p style="color: #7f8c8d; font-style: italic;">All permissions granted</p>';
+}
+
+// Initialize permission summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Load existing permissions first
+  loadExistingPermissions();
+  
+  // Add change listeners to all checkboxes
+  const checkboxes = document.querySelectorAll('.permission-table input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updatePermissionSummary);
+  });
+  
+  // Check if there's a pre-selected role from server
+  const roleSelect = document.getElementById('roleSelect');
+  const selectedRole = roleSelect.value;
+  
+  if (selectedRole) {
+    console.log('🎯 Pre-selected role found:', selectedRole);
+    
+    // Automatically load permissions for pre-selected role
+    loadRolePermissions();
+    
+    // Show notification
+    showNotification(`✅ Automatically loaded permissions for: ${selectedRole}`, 'success');
+    
+    // Scroll to permission table after a short delay
+    setTimeout(() => {
+      document.querySelector('.permission-table-container').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 1000);
+  }
+  
+  // Also check URL parameter as fallback (for manual URL access)
+  const urlParams = new URLSearchParams(window.location.search);
+  const roleParam = urlParams.get('role');
+  
+  if (roleParam && !selectedRole) {
+    console.log('🎯 Role parameter found in URL:', roleParam);
+    
+    // Check if the role exists in dropdown options
+    const roleOption = Array.from(roleSelect.options).find(option => option.value === roleParam);
+    
+    if (roleOption) {
+      roleSelect.value = roleParam;
+      loadRolePermissions();
+      showNotification(`✅ Loaded permissions for: ${roleParam}`, 'success');
+    } else {
+      showNotification(`⚠️ Role "${roleParam}" not found in available roles`, 'error');
+    }
+  }
+});
+
+// Show notification
+function showNotification(message, type) {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+    ${type === 'success' ? 'background: #2ecc71;' : 
+      type === 'error' ? 'background: #e74c3c;' : 'background: #3498db;'}
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Add animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+<%- include('partials/footer') %>

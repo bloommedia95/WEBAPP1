@@ -1,0 +1,264 @@
+<%- include('partials/head') %>
+<%- include('./partials/sidebar') %>
+<%- include('./partials/topbar') %>
+
+<div class="content">
+  <div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-section">
+        <h1 class="page-title">ROLE MANAGEMENT</h1>
+      </div>
+      <div class="page-actions">
+        <button class="refresh-btn" onclick="loadRoleData()">🔄</button>
+      </div>
+    </div>
+    <div style="padding: 20px; background: white; border-radius: 10px; margin: 20px 0;">
+      <h2>🎭 Role Management System</h2>
+      <p>Current User: <%= userRole %></p>
+      <p>Has Full Access: <%= hasFullAccess %></p>
+      <p>Existing Roles: <%= existingRoles ? existingRoles.length : 0 %></p>
+      <p>Users with Roles: <%= usersWithRoles ? usersWithRoles.length : 0 %></p>
+      
+      <!-- Debug: Show raw data -->
+      <details style="margin-top: 15px;">
+        <summary>🔍 Debug Data (Click to expand)</summary>
+        <pre style="background: #f5f5f5; padding: 10px; border-radius: 5px; font-size: 12px; overflow: auto;">
+Users Data: <%= JSON.stringify(usersWithRoles, null, 2) %>
+        </pre>
+      </details>
+    </div>ad') %>
+<%- include('./partials/sidebar') %>
+<%- include('./partials/topbar') %>
+
+<div class="content">
+  <div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-section">
+        <h1 class="page-title">ROLE MANAGEMENT</h1>
+      </div>
+      <div class="page-actions">
+        <button class="refresh-btn" onclick="loadRoleData()">🔄</button>
+      </div>
+    </div>
+
+    <!-- Test Content -->
+    <div style="padding: 20px; background: white; border-radius: 10px; margin: 20px 0;">
+      <h2>🎭 Role Management System</h2>
+      <p>Current User: <%= userRole %></p>
+      <!-- <p>Has Full Access: <%= hasFullAccess %></p> -->
+      <p>Existing Roles: <%= existingRoles ? existingRoles.length : 0 %></p>
+      <p>Users with Roles: <%= usersWithRoles ? usersWithRoles.length : 0 %></p>
+    </div>
+
+    <!-- Simple Role Creation Form -->
+    <div style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+      <h3>🚀 Create New Role</h3>
+      <form id="createRoleForm">
+        <div style="margin-bottom: 20px;">
+          <label for="roleName">Role Name:</label>
+          <input type="text" id="roleName" name="roleName" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" placeholder="e.g., Manager" required>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label>Permissions:</label>
+          <div style="margin-top: 10px;">
+            <label style="display: block; margin: 5px 0;">
+              <input type="checkbox" name="permissions" value="dashboard"> 📊 Dashboard Access
+            </label>
+            <label style="display: block; margin: 5px 0;">
+              <input type="checkbox" name="permissions" value="products"> 🛍️ Product Management
+            </label>
+            <label style="display: block; margin: 5px 0;">
+              <input type="checkbox" name="permissions" value="orders"> 📦 Order Management
+            </label>
+            <label style="display: block; margin: 5px 0;">
+              <input type="checkbox" name="permissions" value="users"> 👥 User Management
+            </label>
+          </div>
+        </div>
+        
+        <button type="submit" style="background: #667eea; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          🚀 Create Role
+        </button>
+      </form>
+    </div>
+
+    <!-- Simple Role Assignment Form -->
+    <div style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+      <h3>👤 Assign Role to User</h3>
+      <form id="assignRoleForm">
+        <div style="margin-bottom: 20px;">
+          <label for="userEmail">User Email:</label>
+          <input type="email" id="userEmail" name="userEmail" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" placeholder="user@example.com" required>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label for="assignRole">Select Role:</label>
+          <select id="assignRole" name="roleName" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;" required>
+            <option value="">Select a role...</option>
+            <% if (existingRoles && existingRoles.length > 0) { %>
+              <% existingRoles.forEach(role => { %>
+                <option value="<%= role %>"><%= role %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+        
+        <button type="submit" style="background: #f093fb; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          🎯 Assign Role
+        </button>
+      </form>
+    </div>
+
+    <!-- Users List -->
+    <div style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+      <h3>📋 Current Users & Roles</h3>
+      <% if (usersWithRoles && usersWithRoles.length > 0) { %>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f8f9fa;">
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Role</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% usersWithRoles.forEach(user => { %>
+              <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= user.email %></td>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= user.role %></td>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No roles assigned yet.</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple Role Management JavaScript
+let isLoading = false;
+
+// Create Role Form Handler
+document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  if (isLoading) return;
+  isLoading = true;
+  
+  const formData = new FormData(e.target);
+  const roleName = formData.get('roleName');
+  const permissions = formData.getAll('permissions');
+  
+  console.log('Creating role:', roleName, 'with permissions:', permissions);
+  
+  if (!roleName.trim()) {
+    alert('Please enter a role name');
+    isLoading = false;
+    return;
+  }
+  
+  if (permissions.length === 0) {
+    alert('Please select at least one permission');
+    isLoading = false;
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/roles/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        roleName: roleName.trim(),
+        permissions: permissions
+      })
+    });
+    
+    const result = await response.json();
+    console.log('Create role result:', result);
+    
+    if (result.success) {
+      alert(`✅ ${result.message}`);
+      e.target.reset();
+      window.location.reload();
+    } else {
+      alert(`❌ Error: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Error creating role:', error);
+    alert('❌ Failed to create role. Please try again.');
+  } finally {
+    isLoading = false;
+  }
+});
+
+// Assign Role Form Handler
+document.getElementById('assignRoleForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  if (isLoading) return;
+  isLoading = true;
+  
+  const formData = new FormData(e.target);
+  const userEmail = formData.get('userEmail');
+  const roleName = formData.get('roleName');
+  
+  console.log('Assigning role:', roleName, 'to user:', userEmail);
+  
+  if (!userEmail.trim() || !roleName) {
+    alert('Please fill in all fields');
+    isLoading = false;
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/roles/assign', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userEmail: userEmail.trim(),
+        roleName: roleName
+      })
+    });
+    
+    const result = await response.json();
+    console.log('Assign role result:', result);
+    
+    if (result.success) {
+      alert(`✅ ${result.message}`);
+      e.target.reset();
+      window.location.reload();
+    } else {
+      alert(`❌ Error: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Error assigning role:', error);
+    alert('❌ Failed to assign role. Please try again.');
+  } finally {
+    isLoading = false;
+  }
+});
+
+// Load Role Data
+function loadRoleData() {
+  window.location.reload();
+}
+
+// Page load initialization
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎭 Role Management page loaded');
+  console.log('Current URL:', window.location.href);
+});
+</script>
+
+<%- include('partials/footer') %>

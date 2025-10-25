@@ -1,0 +1,89 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1 class="page-title">Team Members</h1>
+
+  <!-- Add Staff Form -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.create)) { %>
+  <div class="card shadow p-3 mb-4">
+    <h2>Add New Staff</h2>
+    <form action="/our-staff/add" method="POST">
+      <div>
+        <label>Name</label>
+        <input type="text" name="name" placeholder="Full Name" required>
+      </div>
+      <div>
+        <label>Role</label>
+        <input type="text" name="role" placeholder="Role" required>
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Email" required>
+      </div>
+      <div>
+        <label>Status</label>
+        <select name="status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">Add Staff</button>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Staff Table -->
+  <div class="table-wrap card shadow">
+    <table class="orders-table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Email</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.delete)) { %>
+          <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% staff.forEach((s, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td> <!-- Auto numbering instead of s.id -->
+            <td><%= s.name %></td>
+            <td><%= s.role %></td>
+            <td><%= s.email %></td>
+            <td>
+              <span class="badge <%= s.status.toLowerCase() %>">
+                <%= s.status %>
+              </span>
+            </td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.delete)) { %>
+            <td>
+              <!-- Edit -->
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.edit)) { %>
+              <a href="/our-staff/edit/<%= s._id %>" class="btn-small">Edit</a>
+              <% } %>
+
+              <!-- Delete -->
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.team && userPermissions.team.delete)) { %>
+              <form action="/our-staff/delete/<%= s._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn-small danger">Delete</button>
+              </form>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .login-box {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      padding: 40px 30px;
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .login-box h2 {
+      margin: 0 0 15px 0;
+      text-align: center;
+      font-size: 26px;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .login-box input {
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      transition: 0.3s;
+      width: 100%;          
+      box-sizing: border-box; 
+    }
+
+    .login-box input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    .login-box button {
+      background: linear-gradient(135deg, #ff512f, #dd2476);
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s ease;
+      width: 100%;
+    }
+
+    .login-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .error {
+      color: #ff4d4f;
+      font-size: 14px;
+      text-align: center;
+      background: rgba(255, 77, 79, 0.2);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-credentials {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .demo-credentials h4 {
+      margin: 0 0 10px 0;
+      color: #fff;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .credential-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .credential-label {
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .credential-value {
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .quick-login {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .quick-btn {
+      flex: 1;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 11px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .quick-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .quick-btn.super {
+      background: linear-gradient(45deg, #f39c12, #e67e22);
+    }
+
+    .quick-btn.admin {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <form class="login-box" method="POST" action="/login">
+      <h2> Admin Login</h2>
+
+      <% if (typeof error !== "undefined" && error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+
+      <input type="email" name="email" id="email" placeholder="✉️ Email" required>
+      <input type="password" name="password" id="password" placeholder="🔑 Password" required>
+      <button type="submit">Login</button>
+
+     
+</body>
+</html>

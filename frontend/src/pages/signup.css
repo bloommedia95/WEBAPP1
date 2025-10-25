@@ -1,0 +1,80 @@
+/* src/pages/signup.css */
+
+/* Page wrapper to include Navbar space */
+.signup-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* Signup form container */
+.signup-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px; /* top padding for navbar space */
+}
+
+/* Form box */
+.signup-page form {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Headings */
+.signup-page h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* Input fields */
+.signup-page input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Submit button */
+.signup-page button {
+  width: 100%;
+  padding: 12px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.signup-page button:hover {
+  background-color: #005bbb;
+}
+
+/* Small text / links */
+.signup-page p.signup-text {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.signup-page p.signup-text a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.signup-page p.signup-text a:hover {
+  text-decoration: underline;
+}

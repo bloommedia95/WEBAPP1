@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Edit Product</h1>
+
+  <!-- Edit Product Form -->
+  <div class="form-wrap mb-6">
+    <form action="/products/edit/<%= product._id %>" method="POST" class="product-form">
+      
+      <div class="form-group">
+        <label for="name">Product Name</label>
+        <input type="text" id="name" name="name" value="<%= product.name %>" required />
+      </div>
+
+      <div class="form-group">
+        <label for="sku">SKU</label>
+        <input type="text" id="sku" name="sku" value="<%= product.sku %>" required />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="">-- Select Category --</option>
+          <option value="Electronics" <%= product.category === "Electronics" ? "selected" : "" %>>Electronics</option>
+          <option value="Accessories" <%= product.category === "Accessories" ? "selected" : "" %>>Accessories</option>
+          <option value="Fashion" <%= product.category === "Fashion" ? "selected" : "" %>>Fashion</option>
+          <option value="Home" <%= product.category === "Home" ? "selected" : "" %>>Home</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price ($)</label>
+        <input type="number" id="price" name="price" value="<%= product.price %>" required />
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock</label>
+        <input type="number" id="stock" name="stock" value="<%= product.stock %>" required />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status" required>
+          <option value="Active" <%= product.status === "Active" ? "selected" : "" %>>Active</option>
+          <option value="Inactive" <%= product.status === "Inactive" ? "selected" : "" %>>Inactive</option>
+          <option value="Draft" <%= product.status === "Draft" ? "selected" : "" %>>Draft</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"><%= product.description %></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <button type="submit" class="btn-submit btn-small">Update Product</button>
+        <a href="/products" class="btn-action btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>

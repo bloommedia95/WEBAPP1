@@ -1,0 +1,481 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Coupons</h1>
+
+  <!-- Success/Error Messages -->
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-success alert-dismissible">
+      <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+      <%= message %>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger alert-dismissible">
+      <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+      <%= error %>
+    </div>
+  <% } %>
+
+  <!-- Add Coupon Form - only show if user has create permission -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/api/coupons" method="POST" enctype="multipart/form-data" id="couponForm">
+
+      <!-- Hidden field for edit mode -->
+      <% if (typeof editCoupon !== 'undefined' && editCoupon) { %>
+        <input type="hidden" name="editId" value="<%= editCoupon._id %>">
+      <% } %>
+
+      <!-- Row 1: Title, Code, Discount Type -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="title">Coupon Title</label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            placeholder="Enter coupon title" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.title : '' %>"
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="code">Coupon Code</label>
+          <input 
+            type="text" 
+            id="code" 
+            name="code" 
+            placeholder="Enter coupon code (e.g., SAVE20)" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.code : '' %>"
+            style="text-transform: uppercase;"
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="discountType">Discount Type</label>
+          <select id="discountType" name="discountType" required onchange="toggleMaxDiscount()">
+            <option value="">Select Discount Type</option>
+            <option value="percentage" <%= (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.discountType === 'percentage') ? 'selected' : '' %>>Percentage (%)</option>
+            <option value="fixed" <%= (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.discountType === 'fixed') ? 'selected' : '' %>>Fixed Amount ($)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Discount Value, Min Purchase, Max Discount -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="discount">Discount Value</label>
+          <input 
+            type="number" 
+            id="discount" 
+            name="discount" 
+            placeholder="Enter discount value" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.discount || '' : '' %>"
+            min="0" 
+            step="0.01"
+            required 
+          />
+          <small>Enter amount in dollars or percentage</small>
+        </div>
+
+        <div class="form-group">
+          <label for="minPurchase">Minimum Purchase Amount</label>
+          <input 
+            type="number" 
+            id="minPurchase" 
+            name="minPurchase" 
+            placeholder="Enter minimum purchase amount" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.minPurchase || '' : '' %>"
+            min="0" 
+            step="0.01"
+          />
+          <small>Leave empty if no minimum purchase required</small>
+        </div>
+
+        <div class="form-group" id="maxDiscountGroup" style="display: none;">
+          <label for="maxDiscount">Maximum Discount Amount</label>
+          <input 
+            type="number" 
+            id="maxDiscount" 
+            name="maxDiscount" 
+            placeholder="Enter maximum discount amount" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.maxDiscount || '' : '' %>"
+            min="0" 
+            step="0.01"
+          />
+          <small>Only for percentage discounts</small>
+        </div>
+      </div>
+
+      <!-- Row 3: Usage Limit, Start Date, End Date -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="usageLimit">Usage Limit</label>
+          <input 
+            type="number" 
+            id="usageLimit" 
+            name="usageLimit" 
+            placeholder="Enter usage limit" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.usageLimit || '' : '' %>"
+            min="1"
+          />
+          <small>Leave empty for unlimited use</small>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Start Date</label>
+          <input 
+            type="date" 
+            id="startDate" 
+            name="startDate" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon && editCoupon.startDate ? new Date(editCoupon.startDate).toISOString().split('T')[0] : '' %>"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            name="endDate" 
+            value="<%= typeof editCoupon !== 'undefined' && editCoupon && editCoupon.endDate ? new Date(editCoupon.endDate).toISOString().split('T')[0] : '' %>"
+          />
+        </div>
+      </div>
+
+      <!-- Row 4: Image, First Order Only, Status -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="img">Coupon Image</label>
+          <% if (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.img) { %>
+            <div class="current-image mb-2">
+              <img src="<%= editCoupon.img %>" alt="<%= editCoupon.title %>" width="50" class="img-thumbnail">
+            </div>
+          <% } %>
+          <input 
+            type="file" 
+            id="img" 
+            name="img" 
+            accept="image/*" 
+            onchange="previewImage(this)"
+          />
+          <div id="imagePreview" style="display: none; margin-top: 5px;">
+            <img id="preview" src="#" alt="Preview" width="50" class="img-thumbnail">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              id="firstOrderOnly" 
+              name="firstOrderOnly" 
+              value="true"
+              <%= (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.firstOrderOnly) ? 'checked' : '' %>
+            />
+            First Order Only
+          </label>
+          <small>Check if coupon is only for first-time customers</small>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="Active" <%= (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.status === 'Active') ? 'selected' : '' %>>Active</option>
+            <option value="Inactive" <%= (typeof editCoupon !== 'undefined' && editCoupon && editCoupon.status === 'Inactive') ? 'selected' : '' %>>Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          placeholder="Enter coupon description and terms" 
+          rows="2"
+        ><%= typeof editCoupon !== 'undefined' && editCoupon ? editCoupon.description || '' : '' %></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-group">
+        <div class="button-group">
+          <button type="reset" class="btn btn-secondary btn-small">Reset</button>
+          <button type="submit" class="btn btn-primary btn-small" id="submitBtn">
+            <% if (typeof editCoupon !== 'undefined' && editCoupon) { %>
+              Update Coupon
+            <% } else { %>
+              Save Coupon
+            <% } %>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <% } else { %>
+    <!-- No Permission Message -->
+    <div class="alert alert-warning">
+      <h4>⚠️ Access Denied</h4>
+      <p>You don't have permission to create or edit coupons. Please contact your administrator for access.</p>
+    </div>
+  <% } %>
+
+  <!-- Coupons Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Code</th>
+          <th>Type</th>
+          <th>Discount</th>
+          <th>Min Purchase</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && (userPermissions.coupons.edit || userPermissions.coupons.delete))) { %>
+          <th>Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (coupons && coupons.length > 0) { %>
+          <% coupons.forEach((coupon, i) => { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= coupon.title %></td>
+              <td><strong><%= coupon.code %></strong></td>
+              <td><%= coupon.discountType || 'N/A' %></td>
+              <td><%= coupon.discount || 0 %><%- coupon.discountType === 'percentage' ? '%' : '$' %></td>
+              <td>$<%= coupon.minPurchase || '0' %></td>
+              <td><%= coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : 'N/A' %></td>
+              <td><%= coupon.endDate ? new Date(coupon.endDate).toLocaleDateString() : 'N/A' %></td>
+              <td>
+                <span class="badge <%= (coupon.status || 'Active').toLowerCase() %>">
+                  <%= coupon.status || 'Active' %>
+                </span>
+              </td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && (userPermissions.coupons.edit || userPermissions.coupons.delete))) { %>
+              <td>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.edit)) { %>
+                <a href="/coupon-create?edit=<%= coupon._id %>" class="btn-small">Edit</a>
+                <% } %>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && userPermissions.coupons.delete)) { %>
+                <form action="/api/coupons/<%= coupon._id %>" method="POST" style="display:inline;">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button type="submit" class="btn-small danger" onclick="return confirm('Delete this coupon?')">Delete</button>
+                </form>
+                <% } %>
+              </td>
+              <% } %>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="<%= (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.coupons && (userPermissions.coupons.edit || userPermissions.coupons.delete))) ? '10' : '9' %>" class="text-center">
+              No coupons found. Create your first coupon above.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.form-group small {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  margin-top: 25px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+}
+
+.img-thumbnail {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.btn-small.danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+.text-center {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+</style>
+
+<script src="/js/dashboard.js"></script>
+<script>
+  // Toggle max discount field based on discount type
+  function toggleMaxDiscount() {
+    const discountType = document.getElementById('discountType').value;
+    const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+    
+    if (discountType === 'percentage') {
+      maxDiscountGroup.style.display = 'block';
+    } else {
+      maxDiscountGroup.style.display = 'none';
+      document.getElementById('maxDiscount').value = '';
+    }
+  }
+
+  // Preview image function
+  function previewImage(input) {
+    const preview = document.getElementById('preview');
+    const previewDiv = document.getElementById('imagePreview');
+    
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        previewDiv.style.display = 'block';
+      };
+      
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Form validation
+  document.getElementById('couponForm').addEventListener('submit', function(e) {
+    const discountType = document.getElementById('discountType').value;
+    const discountValue = parseFloat(document.getElementById('discount').value);
+    
+    // Validate discount value
+    if (discountType === 'percentage' && discountValue > 100) {
+      alert('Percentage discount cannot be more than 100%');
+      e.preventDefault();
+      return false;
+    }
+    
+    if (discountValue <= 0) {
+      alert('Discount value must be greater than 0');
+      e.preventDefault();
+      return false;
+    }
+    
+    // Validate date range
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      alert('End date must be after start date');
+      e.preventDefault();
+      return false;
+    }
+    
+    return true;
+  });
+
+  // Initialize max discount visibility on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleMaxDiscount();
+  });
+</script>
+
+<%- include('partials/footer') %>

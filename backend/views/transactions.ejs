@@ -1,0 +1,56 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+  <%- include('partials/topbar') %>
+
+
+<div class="content">
+  <h1 class="page-title"> List Transactions </h1>
+
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.transactions && (userPermissions.transactions.view || userPermissions.transactions.delete))) { %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% transactions.forEach(t => { %>
+          <tr>
+            <td><%= t.id %></td>
+            <td><%= t.user %></td>
+            <td><%= t.amount %></td>
+            <td><%= t.date %></td>
+            <td>
+              <span class="badge <%= (t.status || 'Pending').toLowerCase() %>">
+                <%= t.status %>
+              </span>
+            </td>
+            <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.transactions && (userPermissions.transactions.view || userPermissions.transactions.delete))) { %>
+            <td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.transactions && userPermissions.transactions.view)) { %>
+              <a href="/transactions/view/<%= t.id %>" class="btn-small">View</a>
+              <% } %>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.transactions && userPermissions.transactions.delete)) { %>
+              <form action="/transactions/delete/<%= t.id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn-small danger">Delete</button>
+              </form>
+              <% } %>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

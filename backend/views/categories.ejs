@@ -1,0 +1,260 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+<%- include('partials/topbar') %>
+
+<div class="content">
+  <h1 class="page-title">Categories</h1>
+
+  <!-- Add Category Form -->
+  <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && userPermissions.categories.create)) { %>
+  <div class="form-wrap mb-6">
+    <form action="/categories/add" method="POST" enctype="multipart/form-data" class="category-form">
+      
+      <!-- Category Name -->
+      <div class="form-group">
+        <label for="name">CATEGORY NAME</label>
+        <input type="text" id="name" name="name" placeholder="Enter category name" required />
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">DESCRIPTION</label>
+        <textarea id="description" name="description" placeholder="Enter category description" rows="3"></textarea>
+      </div>
+
+      <!-- Category Type -->
+      <div class="form-group">
+        <label for="type">CATEGORY TYPE</label>
+        <select id="type" name="type" required>
+          <option value="">Select Type</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Home">Home & Garden</option>
+          <option value="Sports">Sports</option>
+          <option value="Books">Books</option>
+          <option value="Beauty">Beauty</option>
+          <option value="Food">Food & Beverage</option>
+        </select>
+      </div>
+
+      <!-- Category Image -->
+      <div class="form-group">
+        <label for="image">CATEGORY IMAGE</label>
+        <input type="file" id="image" name="image" accept="image/*" />
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-group">
+        <button type="submit" class="btn-submit">ADD CATEGORY</button>
+      </div>
+      
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Categories Table -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>IMAGE</th>
+          <th>NAME</th>
+          <th>DESCRIPTION</th>
+          <th>TYPE</th>
+          <th>PRODUCTS</th>
+          <th>STATUS</th>
+          <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && (userPermissions.categories.edit || userPermissions.categories.delete))) { %>
+          <th>ACTIONS</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (categories && categories.length > 0) { %>
+          <% categories.forEach((category, i) => { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td>
+                <% if (category.image) { %>
+                  📁
+                <% } else { %>
+                  📁
+                <% } %>
+              </td>
+              <td><%= category.name %></td>
+              <td><%= category.description || 'No description' %></td>
+              <td><%= category.type %></td>
+              <td><%= category.productCount || 0 %></td>
+              <td>
+                <span class="badge <%= (category.status || 'active').toLowerCase() %>">
+                  <%= category.status || 'Active' %>
+                </span>
+              </td>
+              <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && (userPermissions.categories.edit || userPermissions.categories.delete))) { %>
+              <td>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && userPermissions.categories.edit)) { %>
+                <button class="btn-small edit">Edit</button>
+                <% } %>
+                <% if (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && userPermissions.categories.delete)) { %>
+                <button class="btn-small delete">Delete</button>
+                <% } %>
+              </td>
+              <% } %>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="<%= (userRole === 'superadmin' || hasFullAccess || (userPermissions && userPermissions.categories && (userPermissions.categories.edit || userPermissions.categories.delete))) ? '8' : '7' %>" class="text-center">
+              No categories found.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.form-wrap {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #f8f9fa;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  background: white;
+}
+
+.btn-submit {
+  background: #28a745;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background: #218838;
+}
+
+.table-wrap {
+  background: white;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.orders-table th {
+  background: #f8f9fa;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.orders-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f1f3f4;
+  font-size: 14px;
+}
+
+.orders-table tr:hover {
+  background: #f8f9fa;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 5px;
+  text-transform: uppercase;
+}
+
+.btn-small.edit {
+  background: #28a745;
+  color: white;
+}
+
+.btn-small.delete {
+  background: #dc3545;
+  color: white;
+}
+
+.text-center {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+</style>
+
+<script src="/js/dashboard.js"></script>
+<%- include('partials/footer') %>

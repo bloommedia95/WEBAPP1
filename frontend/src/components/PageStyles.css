@@ -1,0 +1,310 @@
+/* Page Styles for Privacy Policy, Terms & Conditions, and No Refund Policy */
+
+/* Container */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f8faff, #e3e9f7);
+}
+
+/* Banner Styles */
+.page-banner {
+  background: linear-gradient(135deg, #2c4691, #5a7bd5);
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
+.page-banner.no-refund-banner {
+  background: linear-gradient(135deg, #d32f2f, #f44336);
+}
+
+.banner-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.banner-content p {
+  font-size: 1.2rem;
+  font-weight: 300;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* Banner Decoration */
+.banner-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.decoration-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 6s ease-in-out infinite;
+}
+
+.circle-1 {
+  width: 100px;
+  height: 100px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.circle-2 {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  right: 10%;
+  animation-delay: 2s;
+}
+
+.circle-3 {
+  width: 80px;
+  height: 80px;
+  top: 30%;
+  right: 25%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+/* Content Styles */
+.page-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 50px;
+}
+
+.content-intro {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.content-intro p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.last-updated {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 20px !important;
+}
+
+/* Policy Highlight for No Refund Page */
+.policy-highlight {
+  background: linear-gradient(135deg, #ffe0e0, #fff5f5);
+  border-left: 5px solid #d32f2f;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.policy-highlight h3 {
+  color: #d32f2f;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.policy-highlight p {
+  color: #555;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Accordion Styles */
+.accordion {
+  margin-bottom: 50px;
+}
+
+.accordion-item {
+  background: #fff;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-item:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.accordion-header {
+  cursor: pointer;
+  padding: 20px 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+  background: #f8f9ff;
+  transition: all 0.3s ease;
+}
+
+.accordion-header::after {
+  content: "▼";
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.accordion-header.active {
+  background: linear-gradient(135deg, #2c4691, #5a7bd5);
+  color: #fff;
+}
+
+.no-refund-banner + * .accordion-header.active {
+  background: linear-gradient(135deg, #d32f2f, #f44336);
+}
+
+.accordion-header.active::after {
+  transform: translateY(-50%) rotate(180deg);
+  color: #fff;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 25px;
+  background: #fdfdfd;
+}
+
+.accordion-content p {
+  padding: 20px 0;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Contact Section */
+.contact-section {
+  background: linear-gradient(135deg, #f0f4ff, #e8f2ff);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  border: 2px solid #e1e8f7;
+}
+
+.contact-section h3 {
+  color: #2c4691;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+.contact-section p {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.policy-reminder {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+}
+
+.policy-reminder p {
+  color: #856404;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .banner-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .banner-content p {
+    font-size: 1rem;
+  }
+  
+  .page-banner {
+    padding: 60px 15px;
+  }
+  
+  .page-content {
+    padding: 0 15px 30px;
+  }
+  
+  .content-intro {
+    padding: 20px;
+  }
+  
+  .accordion-header {
+    padding: 15px 20px;
+    font-size: 1rem;
+  }
+  
+  .accordion-content {
+    padding: 0 20px;
+  }
+  
+  .accordion-content p {
+    padding: 15px 0;
+  }
+  
+  .contact-section {
+    padding: 20px;
+  }
+  
+  .decoration-circle {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .accordion-header {
+    padding: 12px 15px;
+  }
+  
+  .accordion-header::after {
+    right: 15px;
+  }
+  
+  .accordion-content {
+    padding: 0 15px;
+  }
+}
